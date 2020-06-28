@@ -30,7 +30,7 @@ describe('Nexmo Helpers', () => {
         let res = await nexmo.sendVerificationSMS(countryCode, phone, requestId)
         res.number.should.equals(number)
         res.requestId.should.equals(requestId)
-        let count = await models.Verification.count({where: {number: number, requestId: requestId}})
+        let count = await models.LegacyVerification.count({where: {number: number, requestId: requestId}})
         count.should.equals(1)
     })
 
@@ -39,11 +39,11 @@ describe('Nexmo Helpers', () => {
         let phone = '081234567890'
         let countryCode = '62'
         let number = common.combinePhone(countryCode, phone)
-        await models.Verification.create({number: number, requestId: verificationCode})
+        await models.LegacyVerification.create({number: number, requestId: verificationCode})
         
         let destroyedRow = await nexmo.checkVerificationSMS(countryCode, phone, verificationCode)
         destroyedRow.should.equals(1)
-        let count = await models.Verification.count({where: {number: number}})
+        let count = await models.LegacyVerification.count({where: {number: number}})
         count.should.equals(0)
     })
 
@@ -60,7 +60,7 @@ describe('Nexmo Helpers', () => {
         let res = await nexmo.requestPhoneVerification(countryCode, phone)
         res.number.should.equals(number)
         res.requestId.should.equals(requestId)
-        let count = await models.Verification.count({where: {number: number, requestId: requestId}})
+        let count = await models.LegacyVerification.count({where: {number: number, requestId: requestId}})
         count.should.equals(1)
     })
 
@@ -71,7 +71,7 @@ describe('Nexmo Helpers', () => {
         let countryCode = '62'
         let number = common.combinePhone(countryCode, phone)
         // create dummy verification
-        await models.Verification.create({number: number, requestId: requestId})
+        await models.LegacyVerification.create({number: number, requestId: requestId})
 
         nock(config.NEXMO_API_URL)
             .get(`/verify/check/json?api_key=${config.NEXMO_API_KEY}&api_secret=${config.NEXMO_API_SECRET}&request_id=${requestId}&code=${verificationCode}`)
@@ -79,7 +79,7 @@ describe('Nexmo Helpers', () => {
                 
         let destroyedRow = await nexmo.checkVerificationCode(countryCode, phone, verificationCode)
         destroyedRow.should.equals(1)
-        let count = await models.Verification.count({where: {number: number}})
+        let count = await models.LegacyVerification.count({where: {number: number}})
         count.should.equals(0)
     })
 

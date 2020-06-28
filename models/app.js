@@ -1,47 +1,48 @@
 'use strict'
-module.exports = (sequelize, DataTypes) => {
-  
-  const PLATFORMS = {
-    ANDROID: 'ANDROID',
-    IOS: 'IOS',
-  }
 
-  const App = sequelize.define('App', {
-    id: {
-      type: DataTypes.STRING,
-      primaryKey: true,
-      allowNull: false,
-      validate: {        
-        is: {
-          args: ["^[a-zA-Z0-9_]{5,20}$",'i'],
-          msg: 'App ID must be 5-20 alphanumeric characters',
+const
+    Sequelize = require('sequelize')
+
+const
+    MODEL_NAME = 'App',
+    TABLE_NAME = 'App'
+
+module.exports = sequelize => {
+    return sequelize.define(MODEL_NAME, {
+        id: {
+            type: Sequelize.BIGINT,
+            primaryKey: true
         },
-      }, 
-    },
-    secret: DataTypes.STRING,
-    platform: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      isIn: Object.values(PLATFORMS),
-    },
-    serverKey: DataTypes.STRING,
-    urls: DataTypes.STRING,
-  }, {})
-  App.associate = function(models) {
-    App.hasMany(models.AppUser, {
-      foreignKey: 'appId',
-      as: 'appUsers',
+        ownerEntityTypeId: {
+            type: Sequelize.INTEGER,
+            allowNull: false
+        },
+        ownerId: {
+            type: Sequelize.STRING(64),
+            allowNull: false
+        },
+        extId: {
+            type: Sequelize.STRING(64),
+            allowNull: false
+        },
+        name: {
+            type: Sequelize.STRING,
+            allowNull: false
+        },
+        logoFile: {
+            type: Sequelize.STRING(64),
+            allowNull: true,
+        },
+        appStatusId: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'AppStatus',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: TABLE_NAME,
+        timestamps: true
     })
-    App.belongsToMany(models.User, {
-      through: models.AppUser,
-      as: 'users',
-      foreignKey: 'appId',
-      otherKey: 'userHash',
-    })
-  }
-
-  // constants
-  App.PlatformCode = PLATFORMS
-  
-  return App
 }

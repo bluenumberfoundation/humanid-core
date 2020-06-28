@@ -1,7 +1,7 @@
 {
   "name": "humanID API",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "humanID API documentation",
   "title": "humanID API doc",
-  "url": "https://humanid.herokuapp.com"
+  "url": "https://core.human-id.org/v0.0.3"
 }

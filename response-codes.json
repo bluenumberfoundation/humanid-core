@@ -43,5 +43,35 @@
     "success": false,
     "status": 403,
     "message": "deviceId is not authorized"
+  },
+  "ERR_10": {
+    "success": false,
+    "status": 400,
+    "message": "Invalid phone number input"
+  },
+  "ERR_11": {
+    "success": false,
+    "status": 400,
+    "message": "Invalid OTP Session"
+  },
+  "ERR_12": {
+    "success": false,
+    "status": 400,
+    "message": "Resend has reached limit"
+  },
+  "ERR_13": {
+    "success": false,
+    "status": 400,
+    "message": "Failed attempt has reached limit"
+  },
+  "ERR_14": {
+    "success": false,
+    "status": 400,
+    "message": "Wait for allowed next resend timestamp"
+  },
+  "ERR_15": {
+    "success": false,
+    "status": 400,
+    "message": "OTP Session has expired"
   }
 }

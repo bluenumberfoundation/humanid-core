@@ -68,7 +68,7 @@ db.migrate = async () => {
                 sequelize.getQueryInterface(),
                 Sequelize
             ],
-            path: path.join(__dirname, '../migrations')
+            path: path.join(__dirname, '../migrations/sequential')
         }
     }).up([])
 }
@@ -84,7 +84,7 @@ db.seed = async () => {
                 sequelize.getQueryInterface(),
                 Sequelize
             ],
-            path: path.join(__dirname, '../seeders')
+            path: path.join(__dirname, '../migrations/seeders')
         }
     }).up([])
 }

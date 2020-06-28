@@ -16,43 +16,50 @@
  */
 
 const
+    APIError = require('./server/api_error'),
     Constants = require('./constants'),
     express = require('express'),
     bodyParser = require('body-parser'),
     path = require('path'),
-    ResponseMapper = require('./components/response-mapper'),
+    legacyMiddlewares = require('./legacy-middlewares')
+
+const
     WebConsoleController = require('./controllers/webconsole'),
     MobileController = require('./controllers/mobile'),
-    WebController = require('./controllers/web'),
-    APIError = require('./server/api_error')
+    ServerController = require('./controllers/server'),
+    WebController = require('./controllers/web')
+
+const
+    Middlewares = require('./server/middlewares')
 
 class Server {
-    constructor(models, common, middlewares, nexmo, {logger}) {
+    constructor({config, components, models, services, logger}) {
         // Set logger
         this.logger = logger
 
         // Init config
-        this.config = common.config
-
-        // Init work dir
-        this.workDir = path.resolve('./')
+        // TODO: refactor config structure
+        this.config = config
+        this.config.server = {
+            workDir: path.resolve('./')
+        }
 
         // Init models
         this.models = models
 
         // Init components
-        ResponseMapper.init({filePath: this.workDir + '/response-codes.json'})
-        this.components = {
-            common,
-            nexmo,
-            response: ResponseMapper
-        }
+        this.components = components.init({
+            config: this.config
+        })
+
+        // Init services
+        this.services = services.init(this)
 
         // Init router
-        this.initRouter(middlewares)
+        this.initRouter()
     }
 
-    initRouter(middlewares) {
+    initRouter() {
         // Init router params
         const routerParams = {
             logger: this.logger,
@@ -63,8 +70,12 @@ class Server {
                 handleAsync: this.handleAsync,
                 handleRESTAsync: this.handleRESTAsync,
                 sendResponse: this.sendResponse
-            }
+            },
+            services: this.services
         }
+
+        // Middlewares
+        routerParams.middlewares = new Middlewares(routerParams)
 
         // Get params
         const models = this.models
@@ -81,12 +92,14 @@ class Server {
         this.app.use(bodyParser.urlencoded({extended: true}))
 
         // Configure routing
-        this.app.use(`${basePath}/`, express.static('doc'))
         this.app.use(`${basePath}/lib`, express.static('client/dist'))
         this.app.use(`${basePath}/examples`, express.static('examples'))
-        this.app.use(`${basePath}/console`, new WebConsoleController(models, common, middlewares).router)
+        this.app.use(`${basePath}/console`, new WebConsoleController(models, common, legacyMiddlewares).router)
         this.app.use(`${basePath}/mobile`, new MobileController(routerParams).router)
+        this.app.use(`${basePath}/server`, new ServerController(routerParams).router)
         this.app.use(`${basePath}/web`, new WebController(models, common, nexmo).router)
+        this.app.use(`${basePath}/`, express.static('doc'))
+        this.app.use(`${basePath}/vendor`, express.static('doc/vendor'))
 
         // Handle Errors
         this.app.use((req, res) => {

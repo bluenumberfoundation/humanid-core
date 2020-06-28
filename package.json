@@ -13,8 +13,8 @@
     "doc": "apidoc -i controllers/ -o doc/",
     "db:refresh": "NODE_ENV=DATABASE npx sequelize db:drop; NODE_ENV=DATABASE sequelize db:create; NODE_ENV=DATABASE npx sequelize db:migrate; NODE_ENV=DATABASE npx sequelize db:seed:all",
     "db:migrate": "NODE_ENV=DATABASE npx sequelize db:migrate",
-    "db:undo": "NODE_ENV=db npx sequelize db:migrate:undo",
-    "db:status": "NODE_ENV=db npx sequelize db:migrate:status",
+    "db:undo": "NODE_ENV=DATABASE npx sequelize db:migrate:undo",
+    "db:status": "NODE_ENV=DATABASE npx sequelize db:migrate:status",
     "build": "gulp"
   },
   "keywords": [
@@ -24,6 +24,8 @@
   "author": "yohanes.gultom@gmail.com",
   "license": "GPL-3.0",
   "dependencies": {
+    "argon2": "^0.26.2",
+    "aws-sdk": "^2.697.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.4",
@@ -31,19 +33,21 @@
     "express": "^4.17.1",
     "express-paginate": "^1.0.0",
     "jsonwebtoken": "^8.5.1",
+    "libphonenumber-js": "^1.7.53",
     "lodash": "^4.17.15",
     "mysql2": "^2.1.0",
+    "nanoid": "^3.1.10",
     "node-fetch": "^2.6.0",
     "request": "^2.88.0",
     "sequelize": "^5.18.4",
-    "sqlite3": "^4.1.1",
+    "sqlite3": "^4.2.0",
     "umzug": "^2.2.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
     "@types/express": "^4.17.3",
-    "@types/node": "^13.13.5",
+    "@types/node": "^13.13.12",
     "@types/node-fetch": "^2.5.7",
     "@types/sequelize": "^4.28.8",
     "apidoc": "^0.22.1",

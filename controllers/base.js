@@ -4,20 +4,26 @@ const APIError = require('../server/api_error'),
     Constants = require('../constants')
 
 class BaseController {
-    constructor(models, config, components, server) {
+    constructor(models, args) {
         this.models = models
-        this.config = config
-        this.components = components
 
-        // TODO: update child classes constructor calls and remove server unset check
-        if (server) {
-            this.handleRESTAsync = server.handleRESTAsync
-            this.handleAsync = server.handleAsync
-            this.sendResponse = server.sendResponse
+        // TODO: update child classes constructor calls and remove args unset check
+        if (args) {
+            this.config = args.config
+            this.components = args.components
+            this.services = args.services
+            this.middlewares = args.middlewares
+
+            // Set server functions
+            this.handleRESTAsync = args.server.handleRESTAsync
+            this.handleAsync = args.server.handleAsync
+            this.sendResponse = args.server.sendResponse
         }
     }
 
     /**
+     * TODO: Replace with components.common.validateReq
+     *
      * Validate body against rules
      * @param {Object.<string, string>} rules
      * @param {*} body Request Body
@@ -58,7 +64,7 @@ class BaseController {
      */
     async validateAppCredentials(appId, appSecret, app) {
         if (!app) {
-            app = await this.models.App.findByPk(appId)
+            app = await this.models.LegacyApp.findByPk(appId)
         }
         if (!app || app.id !== appId) {
             throw new Error(`Invalid app ID: ${appId}`)
@@ -77,7 +83,7 @@ class BaseController {
      */
     async validateAppUserCredentials(hash, appId, appSecret) {
         // validate login hash
-        let appUser = await this.models.AppUser.findOne({
+        let appUser = await this.models.LegacyAppUser.findOne({
             where: {hash: hash},
             include: [{all: true}],
         })

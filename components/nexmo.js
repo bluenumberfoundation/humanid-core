@@ -1,69 +1,88 @@
 'use strict'
 
+const DEMO_PHONE_NO = '628199999999'
+
 const
     logger = require('../logger').child({scope: 'Core.Components.Vonage'}),
     request = require('request'),
     models = require('../models'),
     helpers = require('./common'),
     config = helpers.config,
-    {Verification: VerificationModel} = models
+    {LegacyVerification: VerificationModel} = models
 
 // create random verification code and send SMS
 const sendVerificationSMS = async (countryCode, phone, testVerificationCode) => {
-    if (config.NEXMO_REST_URL && config.NEXMO_API_KEY && config.NEXMO_API_SECRET) {
-        let number = helpers.combinePhone(countryCode, phone)
-        let verification = await VerificationModel.findOne({where: {number: number}})
-        let resend = true
-        if (verification && verification.requestId) {
-            let lastUpdate = new Date() - verification.updatedAt
-            resend = lastUpdate >= config.OTP_EXPIRY_MS
-        }
-        if (!resend) {
-            // just return object
-            return Promise.resolve(verification)
-        } else {
-            let verificationCode = testVerificationCode || helpers.randStr(4, 1)
-            if (!verification) {
-                // create new
-                verification = await VerificationModel.create({number: number, requestId: verificationCode})
-            } else {
-                // update code
-                verification.requestId = verificationCode
-                await verification.save()
-            }
-            let options = {
-                method: 'post',
-                url: `${config.NEXMO_REST_URL}/sms/json`,
-                form: {
-                    from: config.NEXMO_FROM,
-                    text: `Your humanID verification code is ${verificationCode}`,
-                    to: number,
-                    api_key: config.NEXMO_API_KEY,
-                    api_secret: config.NEXMO_API_SECRET,
-                },
-                json: true,
+    // Convert phone number to E.164 standard
+    // TODO: replace function with libphonenumber implementation
+    const number = helpers.combinePhone(countryCode, phone)
+
+    // Init send flags
+    let sendSms = true
+
+    // If server is running on demo mode and demo phone number is correct, set test verification code to 1234
+    let verificationCode
+    if (config.DEMO_MODE && number === DEMO_PHONE_NO) {
+        // Set verification code to 1234
+        verificationCode = '1234'
+        // Override send flags
+        sendSms = false
+    } else {
+        // Generate secure verification code
+        // TODO: Generate with CSPRG standard randomizer
+        verificationCode = testVerificationCode || helpers.randStr(4, 1)
+    }
+
+    // Find existing verification code
+    let verification = await VerificationModel.findOne({where: {number: number}})
+
+    // If not found, then create a new one and set resend flag to false
+    let resend
+    if (!verification) {
+        verification = await VerificationModel.create({number: number, requestId: verificationCode})
+    } else {
+        // Else, update verification code
+        verification.requestId = verificationCode
+        await verification.save()
+    }
+
+    // If DEMO_MODE is on, then return
+    if (!sendSms) {
+        return
+    } else if (!config.NEXMO_REST_URL || !config.NEXMO_API_KEY || !config.NEXMO_API_SECRET) {
+        return 'TEST_CODE'
+    }
+
+    // Send otp
+    let options = {
+        method: 'post',
+        url: `${config.NEXMO_REST_URL}/sms/json`,
+        form: {
+            from: config.NEXMO_FROM,
+            text: `Your humanID verification code is ${verificationCode}`,
+            to: number,
+            api_key: config.NEXMO_API_KEY,
+            api_secret: config.NEXMO_API_SECRET,
+        },
+        json: true,
+    }
+
+    return new Promise((resolve, reject) => {
+        request(options, (error, res, body) => {
+            if (error) {
+                logger.error(error)
+                reject(error)
+                return
             }
 
-            // send OTP
-            return new Promise((resolve, reject) => {
-                request(options, (error, res, body) => {
-                    if (error) {
-                        logger.error(error)
-                        reject(error)
-                    } else {
-                        if (body.messages && body.messages.length === 1 && body.messages[0].status === '0') {
-                            resolve(verification)
-                        } else {
-                            logger.error(body)
-                            reject(body)
-                        }
-                    }
-                })
-            })
-        }
-    } else {
-        return Promise.resolve('TEST_CODE')
-    }
+            if (body.messages && body.messages.length === 1 && body.messages[0].status === '0') {
+                resolve(verification)
+                return
+            }
+
+            logger.error(body)
+            reject(body)
+        })
+    })
 }
 
 // compare verificationCode with database entry
