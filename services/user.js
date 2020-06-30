@@ -22,7 +22,11 @@ const
         failAttemptLimit: 5,
         nextResendDelay: 60,
         otpCodeLength: 4
-    }
+    },
+    OWNER_UNKNOWN = 'UNKNOWN',
+    AWS_SMS_PROVIDER = 1,
+    SMS_TRX_SUCCESS = 1,
+    SMS_TRX_FAILED = 2
 
 class UserService extends BaseService {
     constructor(services, args) {
@@ -210,6 +214,118 @@ class UserService extends BaseService {
         }
     }
 
+    async logSmsTrx(metadata) {
+        // Extract metadata
+        const {appId, providerSnapshot, targetCountry, statusId, trxSnapshot, timestamp} = metadata
+
+        // Get references
+        const {App, SMSTransaction, SMSTransactionLog} = this.models
+
+        // Get app snapshot
+        const appSnapshot = {}
+        try {
+            const app = await App.findByPk(appId)
+
+            if (!app) {
+                throw new Error("App not found")
+            }
+
+            appSnapshot.app = app
+        } catch (e) {
+            this.logger.error(`Error while getting app snapshot. Metadata = ${JSON.stringify(metadata)}, Error = ${e.message}`)
+            // Set fallback app snapshot
+            appSnapshot.app = {
+                id: 0,
+                ownerId: OWNER_UNKNOWN
+            }
+        }
+
+        // Create transaction history
+        const trx = {
+            ownerId: appSnapshot.app.ownerId,
+            appId: appSnapshot.app.id,
+            appSnapshot: appSnapshot,
+            providerId: providerSnapshot.sms.id,
+            providerSnapshot: providerSnapshot,
+            targetCountry: targetCountry,
+            statusId: statusId,
+            trxSnapshot: trxSnapshot,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            version: 1
+        }
+
+        // Create log
+        const trxLog = {
+            changelog: {
+                created: true
+            },
+            statusId: trx.statusId,
+            trxSnapshot: trx.trxSnapshot,
+            updatedAt: trx.updatedAt,
+            version: trx.version
+        }
+
+        // Persist log
+        const tx = await SMSTransaction.sequelize.transaction()
+        try {
+            // Insert sms transaction
+            const newTrx = await SMSTransaction.create(trx, {transaction: tx})
+
+            // Set transaction id in log
+            trxLog.id = newTrx.id
+
+            // Insert log
+            await SMSTransactionLog.create(trxLog, {transaction: tx})
+
+            // Commit
+            await tx.commit()
+        } catch (err) {
+            this.logger.error(`Failed to persist SMS Transaction Log. Metadata = ${JSON.stringify(metadata)}, Error = ${err.message}`)
+            await tx.rollback()
+            throw err
+        }
+    }
+
+    async sendSms(phone, message, metadata) {
+        // TODO: Switch provider by country code
+        // Call sms request
+        const providerTrxSnapshot = {}
+        try {
+            providerTrxSnapshot.apiResp = await this.components.smsAWS.sendSms({
+                phoneNo: phone,
+                message: message,
+                senderId: 'humanID'
+            }, {
+                region: 'ap-southeast-1'
+            })
+            providerTrxSnapshot.status = SMS_TRX_SUCCESS
+        } catch (err) {
+            this.logger.error(`Failed to send SMS. ${err.message}`)
+            providerTrxSnapshot.status = SMS_TRX_FAILED
+            providerTrxSnapshot.error = err
+        }
+
+        // TODO: Determine success status by provider response
+        // TODO: Store transaction log async
+        // Store transaction log
+        await this.logSmsTrx({
+            appId: metadata.appId,
+            providerSnapshot: {
+                sms: {
+                    id: AWS_SMS_PROVIDER,
+                    name: 'AWS-SNS'
+                }
+            },
+            targetCountry: metadata.country,
+            statusId: providerTrxSnapshot.status,
+            trxSnapshot: {
+                provider: providerTrxSnapshot
+            },
+            timestamp: new Date()
+        })
+    }
+
     async requestLoginOTP(inputCountryCode, inputPhoneNo, option) {
         // Parse phone number input
         const phone = this.parsePhoneNo(inputCountryCode, inputPhoneNo)
@@ -227,14 +343,10 @@ class UserService extends BaseService {
         const otp = await this.createOTP(session, new Date())
 
         // Send otp
-        // TODO: Implement switching provider by country
-        // Send data
-        const smsResult = await this.components.smsAWS.sendSms({
-            phoneNo: phone.number,
-            message: `Your humanID verification code is ${otp.code}`,
-            senderId: 'humanID'
+        await this.sendSms(phone.number, `Your humanID verification code is ${otp.code}`, {
+            country: phone.country,
+            appId: option.appId
         })
-        this.logger.debug(`API Response = ${JSON.stringify(smsResult)}`)
 
         return {
             requestId: otp.requestId,
