@@ -10,20 +10,27 @@ const
 
 class AwsSmsProvider {
     init({accessKeyId, secretAccessKey, region}) {
-        this.client = new AWS.SNS({
-            apiVersion: API_VERSION,
-            credentials: new AWS.Credentials({
-                accessKeyId: accessKeyId,
-                secretAccessKey: secretAccessKey
-            }),
-            region: region,
-        })
+        this.accessKeyId = accessKeyId
+        this.secretAccessKey = secretAccessKey
+        this.defaultRegion = region
     }
 
     // Send sms
-    async sendSms({phoneNo, message, senderId}) {
-        // Create service
-        const client = this.client
+    async sendSms({phoneNo, message, senderId}, {region}) {
+        // Determine region
+        if (!region) {
+            region = this.defaultRegion
+        }
+
+        // Create client
+        const client = new AWS.SNS({
+            apiVersion: API_VERSION,
+            credentials: new AWS.Credentials({
+                accessKeyId: this.accessKeyId,
+                secretAccessKey: this.secretAccessKey
+            }),
+            region: region
+        })
 
         // Send sms
         const data = await client.publish({
