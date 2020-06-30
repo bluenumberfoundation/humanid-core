@@ -50,7 +50,7 @@ class AwsSmsProvider {
 
         // Log data
         return {
-            provider: 'aws-sns',
+            metadata: { region: region },
             result: data
         }
     }
