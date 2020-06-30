@@ -44,7 +44,7 @@ module.exports = (sequelize) => {
         }
     }, {
         tableName: TABLE_NAME,
-        timestamp: true
+        timestamps: true
     })
 
     Model.associate = function (models) {
