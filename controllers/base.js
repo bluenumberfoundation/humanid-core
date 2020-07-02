@@ -18,6 +18,7 @@ class BaseController {
             this.handleRESTAsync = args.server.handleRESTAsync
             this.handleAsync = args.server.handleAsync
             this.sendResponse = args.server.sendResponse
+            this.sendErrorResponse = args.server.sendErrorResponse
         }
     }
 
