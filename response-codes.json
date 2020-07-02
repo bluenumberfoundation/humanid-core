@@ -73,5 +73,25 @@
     "success": false,
     "status": 400,
     "message": "OTP Session has expired"
+  },
+  "ERR_16": {
+    "success": false,
+    "status": 400,
+    "message": "ownerEntityTypeId must be an Organization (1)"
+  },
+  "ERR_17": {
+    "success": false,
+    "status": 400,
+    "message": "App not found"
+  },
+  "ERR_18": {
+    "success": false,
+    "status": 400,
+    "message": "credentialTypeId must be Server (1) or Mobile (2)"
+  },
+  "ERR_19": {
+    "success": false,
+    "status": 400,
+    "message": "clientId not found for given App"
   }
 }
