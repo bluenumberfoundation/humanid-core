@@ -44,6 +44,7 @@ config.HASH_ID_SALT_1 = process.env.HASH_ID_SALT_1 || config.HASH_ID_SALT_1 || '
 config.HASH_ID_SALT_2 = process.env.HASH_ID_SALT_2 || config.HASH_ID_SALT_2 || 'hash_id_salt2'
 config.HASH_ID_REPEAT = process.env.HASH_ID_REPEAT || config.HASH_ID_REPEAT || 4
 config.HASH_ID_SECRET = process.env.HASH_ID_SECRET || config.HASH_ID_SECRET || 'hash_id_secret'
+config.CONSOLE_API_KEY = process.env.CONSOLE_API_KEY || config.CONSOLE_API_KEY
 
 // Demo App Config
 config.DEMO_APP_JWT_LIFETIME = process.env.DEMO_APP_JWT_LIFETIME || '15m';
