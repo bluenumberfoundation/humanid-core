@@ -11,7 +11,8 @@ module.exports = sequelize => {
     return sequelize.define(MODEL_NAME, {
         id: {
             type: Sequelize.BIGINT,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true
         },
         ownerEntityTypeId: {
             type: Sequelize.INTEGER,
