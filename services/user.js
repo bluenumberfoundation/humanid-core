@@ -287,41 +287,51 @@ class UserService extends BaseService {
         }
     }
 
+    switchProviderByCountry(country) {
+        let provider, options
+        switch (country) {
+            case 'IN':
+                provider = this.components.smsAWS
+                options = {
+                    region: 'ap-south-1'
+                }
+                break
+            default:
+                provider = this.components.smsVonage
+        }
+
+        return {
+            provider: provider,
+            options: options
+        }
+    }
+
     async sendSms(phone, message, metadata) {
-        // TODO: Switch provider by country code
+        // Switch provider by country code
+        const {provider, options} = this.switchProviderByCountry(metadata.country)
+
         // Call sms request
-        const providerTrxSnapshot = {}
+        let providerTrxSnapshot = {}
         try {
-            providerTrxSnapshot.apiResp = await this.components.smsAWS.sendSms({
+            providerTrxSnapshot = await provider.sendSms({
                 phoneNo: phone,
-                message: message,
-                senderId: 'humanID'
-            }, {
-                region: 'ap-southeast-1'
-            })
-            providerTrxSnapshot.status = SMS_TRX_SUCCESS
+                message: message
+            }, options)
         } catch (err) {
             this.logger.error(`Failed to send SMS. ${err.message}`)
             providerTrxSnapshot.status = SMS_TRX_FAILED
             providerTrxSnapshot.error = err
         }
 
-        // TODO: Determine success status by provider response
+
         // TODO: Store transaction log async
         // Store transaction log
         await this.logSmsTrx({
             appId: metadata.appId,
-            providerSnapshot: {
-                sms: {
-                    id: AWS_SMS_PROVIDER,
-                    name: 'AWS-SNS'
-                }
-            },
+            providerSnapshot: { sms: provider.getProviderSnapshot() },
             targetCountry: metadata.country,
             statusId: providerTrxSnapshot.status,
-            trxSnapshot: {
-                provider: providerTrxSnapshot
-            },
+            trxSnapshot: { provider: providerTrxSnapshot },
             timestamp: new Date()
         })
     }
