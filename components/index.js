@@ -5,7 +5,8 @@ const
     DateUtil = require('./date_util'),
     ResponseMapper = require('./response-mapper'),
     smsNexmo = require('./nexmo'),
-    smsAWS = require('./aws-sms')
+    smsAWS = require('./aws-sms'),
+    smsVonage = require('./vonage-sms')
 
 function init({config}) {
     // Init response mapper singleton
@@ -18,6 +19,12 @@ function init({config}) {
         region: config['AWS_SMS_REGION']
     })
 
+    smsVonage.init({
+        apiKey: config['NEXMO_API_KEY'],
+        apiSecret: config['NEXMO_API_SECRET'],
+        defaultSenderId: config['NEXMO_FROM']
+    })
+
     // Return components
     return {
         common: Common,
@@ -25,6 +32,7 @@ function init({config}) {
         nexmo: smsNexmo,
         response: ResponseMapper,
         smsAWS: smsAWS,
+        smsVonage: smsVonage
     }
 }
 
