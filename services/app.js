@@ -2,10 +2,8 @@
 
 const
     APIError = require('../server/api_error'),
-    Constants = require('../constants'),
-    crypto = require('crypto'),
     nanoId = require('nanoid'),
-    {Op} = require("sequelize");
+    {QueryTypes} = require("sequelize")
 
 const
     BaseService = require('./base')
@@ -188,6 +186,40 @@ class AppService extends BaseService {
                 count: result.count
             }
         }
+    }
+
+    async delete(appExtId) {
+        // Get app
+        const app = await this.getApp(appExtId)
+
+        // Get connection from models
+        const db = this.models.App.sequelize
+
+        // delete all exchange session that is related to app id
+        let result = await db.query("DELETE aus FROM AppUserSession aus INNER JOIN AppUser au on aus.appUserId = au.id WHERE au.appId = $appId;", {
+            bind: {appId: app.id},
+            type: QueryTypes.UPDATE
+        })
+        this.logger.debug(`AppUserSession deleted count = ${result[1]}. appId = ${app.id}`)
+
+        // delete all user app session
+        result = await db.query("DELETE ues FROM UserExchangeSession ues INNER JOIN AppUser au on ues.appUserId = au.id WHERE au.appId = $appId;", {
+            bind: {appId: app.id},
+            type: QueryTypes.UPDATE
+        })
+        this.logger.debug(`UserExchangeSession deleted count = ${result[1]}. appId = ${app.id}`)
+
+        // delete all user that is related to app
+        let count = await this.models.AppUser.destroy({where: {appId: app.id}})
+        this.logger.debug(`AppUser deleted count = ${count}. appId = ${app.id}`)
+
+        // delete all credential
+        count = await this.models.AppCredential.destroy({where: {appId: app.id}})
+        this.logger.debug(`AppCredential deleted count = ${count}. appId = ${app.id}`)
+
+        // delete app
+        count = await this.models.App.destroy({where: {id: app.id}})
+        this.logger.debug(`App deleted count = ${count}. id = ${app.id}`)
     }
 
     async deleteCredential(appExtId, clientId) {

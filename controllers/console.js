@@ -21,6 +21,7 @@ class ConsoleController extends BaseController {
 
         this.router.get('/apps', this.handleConsoleAuth, this.handleListApp)
         this.router.post('/apps', this.handleConsoleAuth, this.handleCreateApp)
+        this.router.delete('/apps/:appExtId', this.handleConsoleAuth, this.handleDeleteApp)
         this.router.post('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleCreateAppCredential)
         this.router.get('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleListAppCredential)
         this.router.delete('/apps/:appExtId/credentials/:clientId', this.handleConsoleAuth, this.handleDeleteAppCredential)
@@ -100,6 +101,14 @@ class ConsoleController extends BaseController {
         return {
             data: result
         }
+    })
+
+    handleDeleteApp = this.handleRESTAsync(async req => {
+        const appExtId = req.params['appExtId']
+
+        await this.services.App.delete(appExtId)
+
+        return {}
     })
 
     handleDeleteAppCredential = this.handleRESTAsync(async req => {
