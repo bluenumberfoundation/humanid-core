@@ -38,6 +38,11 @@ const
     CREDENTIAL_ACTIVE = 1,
     CREDENTIAL_INACTIVE = 2
 
+const
+    PLATFORM_ANDROID_SLUG = "android",
+    PLATFORM_IOS_SLUG = "ios",
+    PLATFORM_WEB_SLUG = "web"
+
 class AppService extends BaseService {
     constructor(services, args) {
         super('App', services, args)
@@ -76,7 +81,86 @@ class AppService extends BaseService {
         }
     }
 
-    async createCredential(appExtId, {environmentId, credentialTypeId, name}) {
+    validatePlatform(platformSlug) {
+        switch (platformSlug) {
+            case PLATFORM_ANDROID_SLUG:
+            case PLATFORM_IOS_SLUG:
+            case PLATFORM_WEB_SLUG:
+                return true
+            default:
+                throw new APIError("ERR_20")
+        }
+    }
+
+    getPlatformOptions(platformSlug, options) {
+        let rules = {}
+        switch (platformSlug) {
+            case PLATFORM_ANDROID_SLUG:
+                rules = {packageId: 'required'}
+                break
+            case PLATFORM_IOS_SLUG:
+                rules = {bundleId: 'required'}
+                break
+            case PLATFORM_WEB_SLUG:
+                return true
+            default:
+                throw new APIError("ERR_21")
+        }
+
+        try {
+            this.components.common.validateReq(rules, options)
+        } catch (e) {
+            throw new APIError("ERR_22")
+        }
+
+        switch (platformSlug) {
+            case PLATFORM_ANDROID_SLUG:
+                return {
+                    platform: platformSlug,
+                    packageId: options.packageId
+                }
+
+            case PLATFORM_IOS_SLUG:
+                return {
+                    platform: platformSlug,
+                    bundleId: options.bundleId
+                }
+
+            case PLATFORM_WEB_SLUG:
+                return {
+                    platform: platformSlug
+                }
+
+            default:
+                return {}
+        }
+    }
+
+    parseCredentialPlatformOption(payload) {
+        // Get platform slug name
+        const platformSlug = payload.platform
+
+        // If platform is not set, then set
+        if (!platformSlug) {
+            throw new APIError("ERR_20")
+        }
+
+        // Validate platform slug name
+        this.validatePlatform(platformSlug)
+
+        // Get platform options
+        const platformOpts = payload[platformSlug]
+        if (!platformOpts) {
+            throw new APIError("ERR_21")
+        }
+
+        return this.getPlatformOptions(platformSlug, platformOpts)
+    }
+
+    async createCredential(appExtId, payload) {
+        // Get parameters
+        let {environmentId, credentialTypeId, name} = payload
+
         // Validate credentialTypeId
         if (![SERVER_CRED_TYPE, MOBILE_SDK_CRED_TYPE].includes(credentialTypeId)) {
             throw new APIError("ERR_18")
@@ -98,6 +182,9 @@ class AppService extends BaseService {
             name = `${app.name} ${CRED_TYPE_TEXT[credentialTypeId]} for ${ENV_TEXT[environmentId]}`
         }
 
+        // Get options from payload
+        const options = this.parseCredentialPlatformOption(payload['options'])
+
         // Init timestamp
         const timestamp = new Date()
 
@@ -113,7 +200,7 @@ class AppService extends BaseService {
             name: name,
             clientId: clientId,
             clientSecret: clientSecret,
-            options: {},
+            options: options,
             credentialStatusId: CREDENTIAL_ACTIVE,
             createdAt: timestamp,
             updatedAt: timestamp

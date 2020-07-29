@@ -93,5 +93,20 @@
     "success": false,
     "status": 400,
     "message": "clientId not found for given App"
+  },
+  "ERR_20": {
+    "success": false,
+    "status": 400,
+    "message": "options.platform must be defined with values ios, android or web"
+  },
+  "ERR_21": {
+    "success": false,
+    "status": 400,
+    "message": "options.[platform] is required"
+  },
+  "ERR_22": {
+    "success": false,
+    "status": 400,
+    "message": "options.[platform] invalid format"
   }
 }
