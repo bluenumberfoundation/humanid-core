@@ -40,8 +40,7 @@ const
 
 const
     PLATFORM_ANDROID_SLUG = "android",
-    PLATFORM_IOS_SLUG = "ios",
-    PLATFORM_WEB_SLUG = "web"
+    PLATFORM_IOS_SLUG = "ios"
 
 class AppService extends BaseService {
     constructor(services, args) {
@@ -85,7 +84,6 @@ class AppService extends BaseService {
         switch (platformSlug) {
             case PLATFORM_ANDROID_SLUG:
             case PLATFORM_IOS_SLUG:
-            case PLATFORM_WEB_SLUG:
                 return true
             default:
                 throw new APIError("ERR_20")
@@ -101,8 +99,6 @@ class AppService extends BaseService {
             case PLATFORM_IOS_SLUG:
                 rules = {bundleId: 'required'}
                 break
-            case PLATFORM_WEB_SLUG:
-                return true
             default:
                 throw new APIError("ERR_21")
         }
@@ -124,11 +120,6 @@ class AppService extends BaseService {
                 return {
                     platform: platformSlug,
                     bundleId: options.bundleId
-                }
-
-            case PLATFORM_WEB_SLUG:
-                return {
-                    platform: platformSlug
                 }
 
             default:
