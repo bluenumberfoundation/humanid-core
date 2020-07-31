@@ -20,11 +20,10 @@ const
     Constants = require('./constants'),
     express = require('express'),
     bodyParser = require('body-parser'),
-    path = require('path'),
-    legacyMiddlewares = require('./legacy-middlewares')
+    path = require('path')
 
 const
-    WebConsoleController = require('./controllers/webconsole'),
+    ConsoleController = require('./controllers/console'),
     MobileController = require('./controllers/mobile'),
     ServerController = require('./controllers/server'),
     WebController = require('./controllers/web')
@@ -69,7 +68,8 @@ class Server {
             server: {
                 handleAsync: this.handleAsync,
                 handleRESTAsync: this.handleRESTAsync,
-                sendResponse: this.sendResponse
+                sendResponse: this.sendResponse,
+                sendErrorResponse: this.sendErrorResponse
             },
             services: this.services
         }
@@ -94,7 +94,7 @@ class Server {
         // Configure routing
         this.app.use(`${basePath}/lib`, express.static('client/dist'))
         this.app.use(`${basePath}/examples`, express.static('examples'))
-        this.app.use(`${basePath}/console`, new WebConsoleController(models, common, legacyMiddlewares).router)
+        this.app.use(`${basePath}/console`, new ConsoleController(routerParams).router)
         this.app.use(`${basePath}/mobile`, new MobileController(routerParams).router)
         this.app.use(`${basePath}/server`, new ServerController(routerParams).router)
         this.app.use(`${basePath}/web`, new WebController(models, common, nexmo).router)

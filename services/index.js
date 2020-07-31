@@ -2,11 +2,13 @@
 
 const
     AuthService = require('./auth'),
-    UserService = require('./user')
+    UserService = require('./user'),
+    AppService = require('./app')
 
 const SERVICES = [
     AuthService,
-    UserService
+    UserService,
+    AppService
 ]
 
 function init(args) {

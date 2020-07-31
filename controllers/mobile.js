@@ -29,7 +29,9 @@ class MobileController extends BaseController {
                 }, body)
 
                 // Send Verification via SMS
-                const result = await this.services.User.requestLoginOTP(body.countryCode, body.phone)
+                const result = await this.services.User.requestLoginOTP(body.countryCode, body.phone, {
+                    appId: req.client.appId
+                })
 
                 return {
                     data: result

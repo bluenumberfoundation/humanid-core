@@ -3,8 +3,8 @@
 const
     Sequelize = require('sequelize')
 const
-    TABLE_NAME = 'UserOTPSession',
-    MODEL_NAME = 'UserOTPSession'
+    TABLE_NAME = 'SMSTransaction',
+    MODEL_NAME = 'SMSTransaction'
 
 module.exports = (sequelize) => {
     const Model = sequelize.define(MODEL_NAME, {
@@ -13,34 +13,41 @@ module.exports = (sequelize) => {
             primaryKey: true,
             autoIncrement: true
         },
-        requestId: {
-            type: Sequelize.STRING,
-            allowNull: false,
-            unique: true
-        },
-        userHashId: {
-            type: Sequelize.STRING,
+        ownerId: {
+            type: Sequelize.STRING(64),
             allowNull: false
         },
-        rule: {
+        appId: {
+            type: Sequelize.BIGINT,
+            allowNull: false
+        },
+        appSnapshot: {
             type: Sequelize.JSON,
             allowNull: false
         },
-        otpCount: {
+        providerId: {
             type: Sequelize.INTEGER,
             allowNull: false
         },
-        failAttemptCount: {
+        providerSnapshot: {
+            type: Sequelize.JSON,
+            allowNull: false
+        },
+        targetCountry: {
+            type: Sequelize.STRING(3),
+            allowNull: false
+        },
+        statusId: {
             type: Sequelize.INTEGER,
             allowNull: false
         },
-        nextResendAt: {
-            type: Sequelize.DATE,
+        trxSnapshot: {
+            type: Sequelize.JSON,
             allowNull: true
         },
-        expiredAt: {
-            type: Sequelize.DATE,
-            allowNull: false,
+        version: {
+            type: Sequelize.INTEGER,
+            allowNull: false
         }
     }, {
         tableName: TABLE_NAME,
@@ -48,9 +55,9 @@ module.exports = (sequelize) => {
     })
 
     Model.associate = function (models) {
-        Model.hasMany(models.UserOTP, {
-            foreignKey: 'sessionId',
-            as: 'otps',
+        Model.hasMany(models.SMSTransactionLog, {
+            foreignKey: 'id',
+            as: 'log',
         })
     }
 
