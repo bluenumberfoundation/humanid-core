@@ -9,6 +9,7 @@ const
     crypto = require('crypto'),
     jwt = require('jsonwebtoken'),
     request = require('request'),
+    LibPhoneNo = require('libphonenumber-js'),
     configPath = 'config.json'
 
 // load config
@@ -170,6 +171,22 @@ const validateReq = (rules, body) => {
     }
 }
 
+// parsePhoneNo parse phone number to E.164 format
+const parsePhoneNo = (countryCode, phoneNo) => {
+    // Clean input
+    const input = "+" + countryCode + (phoneNo[0] === '0' ? phoneNo.substring(1) : phoneNo)
+
+    // Clean phoneNo number with libphonenumber
+    const result = LibPhoneNo.parsePhoneNumberFromString(input)
+
+    // If failed to parse phoneNo number, then throw error
+    if (!result) {
+        throw new APIError("ERR_10")
+    }
+
+    return result
+}
+
 module.exports = {
     config: config,
     sleep: sleep,
@@ -181,5 +198,6 @@ module.exports = {
     combinePhone: combinePhone,
     pushNotif: pushNotif,
     getEpoch,
-    validateReq
+    validateReq,
+    parsePhoneNo: parsePhoneNo,
 }

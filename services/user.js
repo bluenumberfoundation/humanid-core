@@ -38,22 +38,6 @@ class UserService extends BaseService {
         this.generateAppUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 20)
     }
 
-    // parsePhoneNo parse phone number to E.164 format
-    parsePhoneNo(countryCode, phoneNo) {
-        // Clean input
-        const input = "+" + countryCode + (phoneNo[0] === '0' ? phoneNo.substring(1) : phoneNo)
-
-        // Clean phoneNo number with libphonenumber
-        const result = LibPhoneNo.parsePhoneNumberFromString(input)
-
-        // If failed to parse phoneNo number, then throw error
-        if (!result) {
-            throw new APIError("ERR_10")
-        }
-
-        return result
-    }
-
     // getHashId generate user hash id
     getHashId(phoneNo) {
         // Get config
@@ -338,7 +322,7 @@ class UserService extends BaseService {
 
     async requestLoginOTP(inputCountryCode, inputPhoneNo, option) {
         // Parse phone number input
-        const phone = this.parsePhoneNo(inputCountryCode, inputPhoneNo)
+        const phone = this.components.common.parsePhoneNo(inputCountryCode, inputPhoneNo)
 
         // Get hash id
         const hashId = this.getHashId(phone.number)
@@ -372,7 +356,7 @@ class UserService extends BaseService {
         const {User, AppUser} = this.models
 
         // Parse phone number input
-        const phone = this.parsePhoneNo(payload.countryCode, payload.phone)
+        const phone = this.components.common.parsePhoneNo(payload.countryCode, payload.phone)
 
         // Get hash id
         const hashId = this.getHashId(phone.number)
