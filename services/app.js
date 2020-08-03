@@ -56,6 +56,35 @@ class AppService extends BaseService {
         this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
     }
 
+    async listSandboxDevUsers({ownerEntityTypeId, ownerId, skip, limit}) {
+        // Get rows
+        const {OrgDevUser} = this.models
+        const result = await OrgDevUser.findAndCountAll({
+            where: {
+                ownerEntityTypeId: ownerEntityTypeId,
+                ownerId: ownerId
+            }, limit: limit, offset: skip
+        })
+
+        // Response data
+        const respData = result.rows.map(item => {
+            return {
+                extId: item.extId,
+                phoneNoMasked: item.phoneNoMasked,
+                createdAt: item.createdAt,
+            }
+        })
+
+        return {
+            devUsers: respData,
+            _metadata: {
+                limit: limit,
+                skip: skip,
+                count: result.count
+            }
+        }
+    }
+
     getDevPhoneHash(ownerEntityTypeId, ownerId, phoneNo) {
         // Get config
         const salt1 = this.config.HASH_ID_SALT_1
