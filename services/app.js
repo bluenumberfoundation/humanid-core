@@ -56,6 +56,22 @@ class AppService extends BaseService {
         this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
     }
 
+    async getSandboxDevUser(appId, phoneNo) {
+        const {App, OrgDevUser} = this.models
+
+        // Get owner info
+        const app = await App.findByPk(appId)
+        if (!app) {
+            throw new APIError('ERR_17')
+        }
+
+        // Get hash id
+        const hashId = this.getDevPhoneHash(app.ownerEntityTypeId, app.ownerId, phoneNo)
+
+        // Get dev user
+        return OrgDevUser.findOne({where: {hashId: hashId}})
+    }
+
     async deleteSandboxDevUser(extId) {
         // Get models
         const {OrgDevUser, UserOTPSandbox} = this.models
