@@ -54,7 +54,9 @@ class AuthService extends BaseService {
         }
 
         return {
-            appId: appCred.appId
+            appId: appCred.appId,
+            appExtId: appCred.appExtId,
+            environmentId: appCred.environmentId
         }
     }
 
