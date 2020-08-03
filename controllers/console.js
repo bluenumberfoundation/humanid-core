@@ -16,6 +16,20 @@ class ConsoleController extends BaseController {
         this.route()
     }
 
+    route() {
+        this.router = express.Router()
+
+        this.router.get('/apps', this.handleConsoleAuth, this.handleListApp)
+        this.router.post('/apps', this.handleConsoleAuth, this.handleCreateApp)
+        this.router.delete('/apps/:appExtId', this.handleConsoleAuth, this.handleDeleteApp)
+        this.router.post('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleCreateAppCredential)
+        this.router.get('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleListAppCredential)
+        this.router.delete('/apps/:appExtId/credentials/:clientId', this.handleConsoleAuth, this.handleDeleteAppCredential)
+        this.router.put('/apps/:appExtId/credentials/:clientId/status', this.handleConsoleAuth, this.handleToggleAppCredentialStatus)
+        this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
+        this.router.get('/sandbox/dev-users', this.handleConsoleAuth, this.handleListDevUser)
+    }
+
     handleListDevUser = this.handleRESTAsync(async req => {
         const reqBody = {
             skip: parseInt(req.query['skip'], 10) || 0,
@@ -162,20 +176,6 @@ class ConsoleController extends BaseController {
             data: result
         }
     })
-
-    route() {
-        this.router = express.Router()
-
-        this.router.get('/apps', this.handleConsoleAuth, this.handleListApp)
-        this.router.post('/apps', this.handleConsoleAuth, this.handleCreateApp)
-        this.router.delete('/apps/:appExtId', this.handleConsoleAuth, this.handleDeleteApp)
-        this.router.post('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleCreateAppCredential)
-        this.router.get('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleListAppCredential)
-        this.router.delete('/apps/:appExtId/credentials/:clientId', this.handleConsoleAuth, this.handleDeleteAppCredential)
-        this.router.put('/apps/:appExtId/credentials/:clientId/status', this.handleConsoleAuth, this.handleToggleAppCredentialStatus)
-        this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
-        this.router.get('/sandbox/dev-users', this.handleConsoleAuth, this.handleListDevUser)
-    }
 
     handleConsoleAuth = (req, res, next) => {
         // Get api key from header
