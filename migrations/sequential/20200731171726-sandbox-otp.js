@@ -8,6 +8,10 @@ module.exports = {
                 primaryKey: true,
                 autoIncrement: true,
             },
+            extId: {
+                type: Sequelize.STRING(24),
+                allowNull: false
+            },
             ownerEntityTypeId: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
