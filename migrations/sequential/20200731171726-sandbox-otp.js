@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('OrgUserWhitelist', {
+        await queryInterface.createTable('OrgDevUser', {
             id: {
                 type: Sequelize.BIGINT,
                 primaryKey: true,
@@ -20,7 +20,7 @@ module.exports = {
                 type: Sequelize.STRING(64),
                 allowNull: false
             },
-            phoneNoHash: {
+            hashId: {
                 type: Sequelize.STRING(256),
                 allowNull: false
             },
@@ -49,11 +49,11 @@ module.exports = {
                     key: 'id'
                 }
             },
-            orgUserWhitelistId: {
+            devUserId: {
                 type: Sequelize.BIGINT,
                 allowNull: false,
                 references: {
-                    model: 'OrgUserWhitelist',
+                    model: 'OrgDevUser',
                     key: 'id'
                 }
             },
@@ -73,12 +73,13 @@ module.exports = {
             },
         })
 
-        await queryInterface.addIndex('OrgUserWhitelist', ['ownerId'])
-        await queryInterface.addIndex('OrgUserWhitelist', ['phoneNoHash'])
+        await queryInterface.addIndex('OrgDevUser', ['extId'])
+        await queryInterface.addIndex('OrgDevUser', ['ownerId'])
+        await queryInterface.addIndex('OrgDevUser', ['hashId'])
     },
 
     down: async (queryInterface, Sequelize) => {
         await queryInterface.dropTable('UserOTPSandbox')
-        await queryInterface.dropTable('OrgUserWhitelist')
+        await queryInterface.dropTable('OrgDevUser')
     }
 };
