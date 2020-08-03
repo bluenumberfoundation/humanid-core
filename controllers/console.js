@@ -135,19 +135,6 @@ class ConsoleController extends BaseController {
         }
     })
 
-    handleConsoleAuth = (req, res, next) => {
-        // Get api key from header
-        const apiKey = req.headers['x-api-key']
-
-        // Validate
-        if (apiKey !== this.config.CONSOLE_API_KEY) {
-            this.sendErrorResponse(res, new APIError(Constants.RESPONSE_ERROR_UNAUTHORIZED))
-            return
-        }
-
-        next()
-    }
-
     route() {
         this.router = express.Router()
 
@@ -160,6 +147,19 @@ class ConsoleController extends BaseController {
         this.router.put('/apps/:appExtId/credentials/:clientId/status', this.handleConsoleAuth, this.handleToggleAppCredentialStatus)
         this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
         this.router.get('/sandbox/dev-users', this.handleConsoleAuth, this.handleListDevUser)
+    }
+
+    handleConsoleAuth = (req, res, next) => {
+        // Get api key from header
+        const apiKey = req.headers['x-api-key']
+
+        // Validate
+        if (apiKey !== this.config.CONSOLE_API_KEY) {
+            this.sendErrorResponse(res, new APIError(Constants.RESPONSE_ERROR_UNAUTHORIZED))
+            return
+        }
+
+        next()
     }
 }
 
