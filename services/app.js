@@ -3,6 +3,7 @@
 const
     APIError = require('../server/api_error'),
     nanoId = require('nanoid'),
+    crypto = require('crypto'),
     {QueryTypes} = require("sequelize")
 
 const
@@ -42,6 +43,9 @@ const
     PLATFORM_ANDROID_SLUG = "android",
     PLATFORM_IOS_SLUG = "ios"
 
+const
+    ORG_REGISTERED_DEV_USER_LIMIT = 2
+
 class AppService extends BaseService {
     constructor(services, args) {
         super('App', services, args)
@@ -49,6 +53,68 @@ class AppService extends BaseService {
         this.generateExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 16)
         this.generateClientId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 22)
         this.generateClientSecret = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~", 64)
+        this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
+    }
+
+    getDevPhoneHash(ownerEntityTypeId, ownerId, phoneNo) {
+        // Get config
+        const salt1 = this.config.HASH_ID_SALT_1
+        const salt2 = this.config.HASH_ID_SALT_2
+        const secret = this.config.HASH_ID_SECRET
+
+        // Create a hashed sha-512 phone number
+        const raw = salt2 + ownerEntityTypeId + phoneNo + ownerId + salt1
+        return crypto.createHmac('sha512', secret).update(raw).digest('hex')
+    }
+
+    async registerDevUser({ownerEntityTypeId, ownerId, inputCountryCode, inputPhoneNo}) {
+        // Count registered dev user
+        const {OrgDevUser} = this.models
+        const devUserCount = await OrgDevUser.count({
+            where: {
+                ownerEntityTypeId: ownerEntityTypeId,
+                ownerId: ownerId
+            }
+        })
+
+        // If registered count reach limit, then return error
+        if (devUserCount >= ORG_REGISTERED_DEV_USER_LIMIT) {
+            throw new APIError("ERR_23")
+        }
+
+        // Parse phone number
+        const phone = this.components.common.parsePhoneNo(inputCountryCode, inputPhoneNo)
+        const phoneNo = phone.number
+
+        // Generate dev user hash id
+        const hashId = this.getDevPhoneHash(ownerEntityTypeId, ownerId, phoneNo)
+
+        // Search if exist
+        const foundCount = await OrgDevUser.count({
+            where: {
+                hashId: hashId
+            }
+        })
+
+        if (foundCount > 0) {
+            throw new APIError("ERR_24")
+        }
+
+        // Get Country Code
+        const countryCode = phone.countryCallingCode
+        const maskedLen = phoneNo.length - 3 - countryCode.length
+
+        // Create masked phone number
+        const phoneNoMasked = "+" + countryCode + "X".repeat(maskedLen) + phoneNo.substr(-3)
+
+        // Insert
+        await OrgDevUser.create({
+            extId: this.generateDevUserExtId(),
+            ownerEntityTypeId: ownerEntityTypeId,
+            ownerId: ownerId,
+            hashId: hashId,
+            phoneNoMasked: phoneNoMasked
+        })
     }
 
     async create({ownerEntityTypeId, ownerId, name}) {

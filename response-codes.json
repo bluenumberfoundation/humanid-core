@@ -108,5 +108,15 @@
     "success": false,
     "status": 400,
     "message": "options.[platform] invalid format"
+  },
+  "ERR_23": {
+    "success": false,
+    "status": 400,
+    "message": "Organization has reach limit for registered dev user"
+  },
+  "ERR_24": {
+    "success": false,
+    "status": 400,
+    "message": "Phone Number has been registered for this organization"
   }
 }
