@@ -56,6 +56,25 @@ class AppService extends BaseService {
         this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
     }
 
+    async deleteSandboxDevUser(extId) {
+        // Get models
+        const {OrgDevUser, UserOTPSandbox} = this.models
+
+        // Get OrgDevUser
+        const devUser = await OrgDevUser.findOne({where: {extId: extId}})
+        if (!devUser) {
+            throw new APIError("ERR_25")
+        }
+
+        // delete all otp related to user
+        let count = await UserOTPSandbox.destroy({where: {devUserId: devUser.id}})
+        this.logger.debug(`OrgDevUser deleted count = ${count}. devUserId = ${devUser.id}`)
+
+        // delete user
+        count = await OrgDevUser.destroy({where: {id: devUser.id}})
+        this.logger.debug(`OrgDevUser deleted count = ${count}. devUserId = ${devUser.id}`)
+    }
+
     async listSandboxDevUsers({ownerEntityTypeId, ownerId, skip, limit}) {
         // Get rows
         const {OrgDevUser} = this.models

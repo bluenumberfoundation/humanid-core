@@ -118,5 +118,10 @@
     "success": false,
     "status": 400,
     "message": "Phone Number has been registered for this organization"
+  },
+  "ERR_25": {
+    "success": false,
+    "status": 400,
+    "message": "Dev Users not found"
   }
 }

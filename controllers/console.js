@@ -16,6 +16,15 @@ class ConsoleController extends BaseController {
         this.route()
     }
 
+    handleDeleteDevUser = this.handleRESTAsync(async req => {
+        const extId = req.params['extId']
+
+        const {App} = this.services
+        await App.deleteSandboxDevUser(extId)
+
+        return {}
+    })
+
     route() {
         this.router = express.Router()
 
@@ -28,6 +37,7 @@ class ConsoleController extends BaseController {
         this.router.put('/apps/:appExtId/credentials/:clientId/status', this.handleConsoleAuth, this.handleToggleAppCredentialStatus)
         this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
         this.router.get('/sandbox/dev-users', this.handleConsoleAuth, this.handleListDevUser)
+        this.router.delete('/sandbox/dev-users/:extId', this.handleConsoleAuth, this.handleDeleteDevUser)
     }
 
     handleListDevUser = this.handleRESTAsync(async req => {
