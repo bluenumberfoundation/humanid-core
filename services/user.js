@@ -522,7 +522,7 @@ class UserService extends BaseService {
 
     async clearOTPSession(id) {
         // Get references
-        const {UserOTP, UserOTPSession} = this.models
+        const {UserOTP, UserOTPSession, UserOTPSandbox} = this.models
 
         // Clear otp session
         const tx = await UserOTP.sequelize.transaction()
@@ -532,6 +532,9 @@ class UserService extends BaseService {
             if (count === 0) {
                 throw new Error("no UserOTP rows deleted")
             }
+
+            count = await UserOTPSandbox.destroy({where: {sessionId: id}})
+            this.logger.debug(`UserOTPSandbox rows deleted count = ${count}`)
 
             count = await UserOTPSession.destroy({where: {id: id}})
             if (count === 0) {
