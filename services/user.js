@@ -336,11 +336,31 @@ class UserService extends BaseService {
         // Create otp
         const otp = await this.createOTP(session, new Date())
 
-        // Send otp
-        await this.sendSms(phone.number, `Your humanID verification code is ${otp.code}`, {
-            country: phone.country,
-            appId: option.appId
-        })
+        // Determine sandbox
+        let devUser
+        if (option && option['environmentId'] === Constants.ENV_DEVELOPMENT) {
+            this.logger.debug('')
+            // Check if phone number is registered or not
+            const {App} = this.services
+            devUser = await App.getSandboxDevUser(option.appId, phone.number)
+        }
+
+        if (devUser) {
+            // Persist OTP
+            const {UserOTPSandbox} = this.models
+            await UserOTPSandbox.create({
+                sessionId: session.id,
+                devUserId: devUser.id,
+                otpCode: otp.code,
+                expiredAt: session.expiredAt
+            })
+        } else {
+            // Send otp
+            await this.sendSms(phone.number, `Your humanID verification code is ${otp.code}`, {
+                country: phone.country,
+                appId: option.appId
+            })
+        }
 
         return {
             requestId: otp.requestId,

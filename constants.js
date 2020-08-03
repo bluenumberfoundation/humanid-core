@@ -10,4 +10,5 @@ module.exports = {
     AUTH_SCOPE_SERVER: 1,
     AUTH_SCOPE_MOBILE: 2,
     APP_ACCESS_GRANTED: 1,
+    ENV_DEVELOPMENT: 2,
 }
