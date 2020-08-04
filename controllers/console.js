@@ -25,6 +25,27 @@ class ConsoleController extends BaseController {
         return {}
     })
 
+    handleListSandboxOTPs = this.handleRESTAsync(async req => {
+        const reqBody = {
+            skip: parseInt(req.query['skip'], 10) || 0,
+            limit: parseInt(req.query['limit'], 10) || 10,
+            ownerEntityTypeId: parseInt(req.query['ownerEntityTypeId'], 0) || 0,
+            ownerId: req.query['ownerId']
+        }
+
+        this.validate({
+            ownerEntityTypeId: 'required',
+            ownerId: 'required'
+        }, reqBody)
+
+        const {App} = this.services
+        const result = await App.listSandboxOTPs(reqBody)
+
+        return {
+            data: result
+        }
+    })
+
     route() {
         this.router = express.Router()
 
@@ -38,6 +59,7 @@ class ConsoleController extends BaseController {
         this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
         this.router.get('/sandbox/dev-users', this.handleConsoleAuth, this.handleListDevUser)
         this.router.delete('/sandbox/dev-users/:extId', this.handleConsoleAuth, this.handleDeleteDevUser)
+        this.router.get('/sandbox/otps', this.handleConsoleAuth, this.handleListSandboxOTPs)
     }
 
     handleListDevUser = this.handleRESTAsync(async req => {

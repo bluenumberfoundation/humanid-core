@@ -46,6 +46,15 @@ const
 const
     ORG_REGISTERED_DEV_USER_LIMIT = 2
 
+// Create core query
+const
+    FIND_SANDBOX_OTP_CORE_QUERY = "FROM UserOTPSandbox as otp " +
+        "INNER JOIN OrgDevUser as devUser ON otp.devUserId = devUser.id " +
+        "WHERE devUser.ownerEntityTypeId = $ownerEntityTypeId AND devUser.ownerId = $ownerId AND otp.expiredAt > $timestamp",
+    FIND_SANDBOX_OTP_QUERY = "SELECT devUser.phoneNoMasked, otp.otpCode, otp.expiredAt, otp.createdAt " +
+        FIND_SANDBOX_OTP_CORE_QUERY + " ORDER BY otp.createdAt DESC LIMIT $limit OFFSET $offset;",
+    COUNT_SANDBOX_OTP_QUERY = `SELECT COUNT(*) as count ${FIND_SANDBOX_OTP_CORE_QUERY};`
+
 class AppService extends BaseService {
     constructor(services, args) {
         super('App', services, args)
@@ -54,6 +63,52 @@ class AppService extends BaseService {
         this.generateClientId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 22)
         this.generateClientSecret = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~", 64)
         this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
+    }
+
+    async listSandboxOTPs({ownerEntityTypeId, ownerId, skip, limit}) {
+        // Get data source reference
+        const {UserOTPSandbox} = this.models
+        const db = UserOTPSandbox.sequelize
+
+        // Retrieve data
+        const rows = await db.query(FIND_SANDBOX_OTP_QUERY, {
+            bind: {
+                ownerEntityTypeId: ownerEntityTypeId,
+                ownerId: ownerId,
+                timestamp: new Date(),
+                offset: skip,
+                limit: limit
+            },
+            type: QueryTypes.SELECT,
+        })
+
+        // Count all available records
+        const countResult = await db.query(COUNT_SANDBOX_OTP_QUERY, {
+            bind: {
+                ownerEntityTypeId: ownerEntityTypeId,
+                ownerId: ownerId,
+                timestamp: new Date(),
+            },
+            type: QueryTypes.SELECT,
+        })
+
+        // Response data
+        const respData = rows.map(item => {
+            return {
+                phoneNoMasked: item.phoneNoMasked,
+                otpCode: item.otpCode,
+                createdAt: item.createdAt,
+            }
+        })
+
+        return {
+            otps: respData,
+            _metadata: {
+                limit: limit,
+                skip: skip,
+                count: countResult[0].count
+            }
+        }
     }
 
     async getSandboxDevUser(appId, phoneNo) {
