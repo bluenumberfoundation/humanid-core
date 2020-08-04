@@ -177,7 +177,8 @@ class AppService extends BaseService {
             ownerEntityTypeId: ownerEntityTypeId,
             ownerId: ownerId,
             hashId: hashId,
-            phoneNoMasked: phoneNoMasked
+            phoneNoMasked: phoneNoMasked,
+            createdAt: new Date()
         })
     }
 

@@ -352,6 +352,7 @@ class UserService extends BaseService {
                 sessionId: session.id,
                 devUserId: devUser.id,
                 otpCode: otp.code,
+                createdAt: new Date(),
                 expiredAt: session.expiredAt
             })
         } else {
