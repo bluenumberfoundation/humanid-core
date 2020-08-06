@@ -312,10 +312,10 @@ class UserService extends BaseService {
         // Store transaction log
         await this.logSmsTrx({
             appId: metadata.appId,
-            providerSnapshot: { sms: provider.getProviderSnapshot() },
-            targetCountry: metadata.country,
+            providerSnapshot: {sms: provider.getProviderSnapshot()},
+            targetCountry: metadata.country || "-",
             statusId: providerTrxSnapshot.status,
-            trxSnapshot: { provider: providerTrxSnapshot },
+            trxSnapshot: {provider: providerTrxSnapshot},
             timestamp: new Date()
         })
     }
