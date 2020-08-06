@@ -166,7 +166,7 @@ class Server {
             resp = responseMapper.getInternalError()
 
             // If debug mode, add source error stack
-            if (this.config.APP_DEBUG) {
+            if (this.config.DEBUG) {
                 data = {
                     _errorDebug: {
                         name: err.name,

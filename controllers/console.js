@@ -214,7 +214,7 @@ class ConsoleController extends BaseController {
         const apiKey = req.headers['x-api-key']
 
         // Validate
-        if (apiKey !== this.config.CONSOLE_API_KEY) {
+        if (apiKey !== this.config.DEV_CONSOLE_CLIENT_API_KEY) {
             this.sendErrorResponse(res, new APIError(Constants.RESPONSE_ERROR_UNAUTHORIZED))
             return
         }
