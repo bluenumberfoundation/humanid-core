@@ -1,0 +1,21 @@
+{
+  "HASH_ID_SALT_1": "<SECURE_RANDOM_STRING>",
+  "HASH_ID_SALT_2": "<SECURE_RANDOM_STRING>",
+  "HASH_ID_SECRET": "<SECURE_RANDOM_STRING>",
+  "EXCHANGE_TOKEN_AES_KEY": "<SECURE_RANDOM_32_BYTES_HEX_STRING>",
+  "EXCHANGE_TOKEN_LIFETIME": 300,
+  "DEV_CONSOLE_CLIENT_API_KEY": "<DEV_DEV_CONSOLE_CLIENT_API_KEY>",
+  "NEXMO_API_KEY": "<NEXMO_API_KEY>",
+  "NEXMO_API_SECRET": "<VONAGE_API_SECRET>",
+  "FIREBASE_SERVER_KEY": "<FIREBASE_SERVER_KEY>",
+  "DATABASE": {
+    "dialect": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "root",
+    "password": "root",
+    "database": "humanid_core_db"
+  },
+  "AWS_ACCESS_KEY_ID": "<AWS_ACCESS_KEY_ID>",
+  "AWS_SECRET_ACCESS_KEY": "<AWS_SECRET_ACCESS_KEY>"
+}

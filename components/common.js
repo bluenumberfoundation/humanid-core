@@ -20,35 +20,49 @@ if (fs.existsSync(path.join('.', configPath))) {
     logger.warn(`${configPath} not found`)
 }
 
-// override config
+// TODO: To be deprecated
 config.CONFIRMATION_EXPIRY_MS = process.env.CONFIRMATION_EXPIRY_MS || config.CONFIRMATION_EXPIRY_MS || 30000
 config.OTP_EXPIRY_MS = process.env.OTP_EXPIRY_MS || config.OTP_EXPIRY_MS || 60000
 config.APP_SECRET = process.env.APP_SECRET || config.APP_SECRET || 'ThisIsADefaultSecretPhrase'
 config.AUTHY_API_URL = process.env.AUTHY_API_URL || 'https://api.authy.com'
+config.AUTHY_API_KEY = process.env.AUTHY_API_KEY || config.AUTHY_API_KEY
+config.DEMO_APP_JWT_LIFETIME = process.env.DEMO_APP_JWT_LIFETIME || '15m';
 config.NEXMO_API_URL = process.env.NEXMO_API_URL || 'https://api.nexmo.com'
 config.NEXMO_REST_URL = process.env.NEXMO_REST_URL || 'https://rest.nexmo.com'
-config.AUTHY_API_KEY = process.env.AUTHY_API_KEY || config.AUTHY_API_KEY
+
+// Server
+config.APP_PORT = process.env.APP_PORT || config.APP_PORT || 3000
+config.DEBUG = process.env.DEBUG || false
+config.BASE_PATH = process.env.BASE_PATH || config.BASE_PATH || ''
+
+// Server.DemoMode
+config.DEMO_MODE = process.env.DEMO_MODE || config.DEMO_MODE || false
+
+// Server.UserHash
+config.HASH_ID_SALT_1 = process.env.HASH_ID_SALT_1 || config.HASH_ID_SALT_1
+config.HASH_ID_SALT_2 = process.env.HASH_ID_SALT_2 || config.HASH_ID_SALT_2
+config.HASH_ID_REPEAT = process.env.HASH_ID_REPEAT || config.HASH_ID_REPEAT || 4
+config.HASH_ID_SECRET = process.env.HASH_ID_SECRET || config.HASH_ID_SECRET
+
+// Client.ExchangeToken
+config.EXCHANGE_TOKEN_AES_KEY = process.env.EXCHANGE_TOKEN_AES_KEY || config.EXCHANGE_TOKEN_AES_KEY
+config.EXCHANGE_TOKEN_LIFETIME = process.env.EXCHANGE_TOKEN_LIFETIME || config.EXCHANGE_TOKEN_LIFETIME || 300
+
+// Client.DevConsole
+config.DEV_CONSOLE_CLIENT_API_KEY = process.env.DEV_CONSOLE_CLIENT_API_KEY || config.DEV_CONSOLE_CLIENT_API_KEY
+
+// Components.Nexmo
 config.NEXMO_API_KEY = process.env.NEXMO_API_KEY || config.NEXMO_API_KEY
 config.NEXMO_API_SECRET = process.env.NEXMO_API_SECRET || config.NEXMO_API_SECRET
-config.FIREBASE_SERVER_KEY = process.env.FIREBASE_SERVER_KEY || config.FIREBASE_SERVER_KEY
 config.NEXMO_FROM = process.env.NEXMO_FROM || config.NEXMO_FROM || 'humanID'
-config.APP_PORT = process.env.APP_PORT || config.APP_PORT || 3000
-config.EXCHANGE_TOKEN_AES_KEY = process.env.EXCHANGE_TOKEN_AES_KEY || config.EXCHANGE_TOKEN_AES_KEY
-config.EXCHANGE_TOKEN_LIFETIME = process.env.EXCHANGE_TOKEN_LIFETIME || config.EXCHANGE_TOKEN_LIFETIME
-config.APP_DEBUG = process.env.APP_DEBUG || false
-config.BASE_PATH = process.env.BASE_PATH || config.BASE_PATH || ''
-config.DEMO_MODE = process.env.DEMO_MODE || config.DEMO_MODE || false
+
+// Components.AWS
 config.AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || config.AWS_ACCESS_KEY_ID
 config.AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || config.AWS_SECRET_ACCESS_KEY
 config.AWS_SMS_REGION = process.env.AWS_SMS_REGION || config.AWS_SMS_REGION || 'us-west-2'
-config.HASH_ID_SALT_1 = process.env.HASH_ID_SALT_1 || config.HASH_ID_SALT_1 || 'hash_id_salt1'
-config.HASH_ID_SALT_2 = process.env.HASH_ID_SALT_2 || config.HASH_ID_SALT_2 || 'hash_id_salt2'
-config.HASH_ID_REPEAT = process.env.HASH_ID_REPEAT || config.HASH_ID_REPEAT || 4
-config.HASH_ID_SECRET = process.env.HASH_ID_SECRET || config.HASH_ID_SECRET || 'hash_id_secret'
-config.CONSOLE_API_KEY = process.env.CONSOLE_API_KEY || config.CONSOLE_API_KEY
 
-// Demo App Config
-config.DEMO_APP_JWT_LIFETIME = process.env.DEMO_APP_JWT_LIFETIME || '15m';
+// Components.Firebase
+config.FIREBASE_SERVER_KEY = process.env.FIREBASE_SERVER_KEY || config.FIREBASE_SERVER_KEY
 
 const SECRET = config.APP_SECRET
 
