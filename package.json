@@ -14,7 +14,8 @@
     "db:migrate": "NODE_ENV=DATABASE npx sequelize db:migrate",
     "db:undo": "NODE_ENV=DATABASE npx sequelize db:migrate:undo",
     "db:status": "NODE_ENV=DATABASE npx sequelize db:migrate:status",
-    "build": "gulp"
+    "build": "gulp",
+    "gen-aes-key": "node deployments/generate-aes-key.js"
   },
   "keywords": [
     "human",
