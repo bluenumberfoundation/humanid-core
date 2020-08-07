@@ -360,7 +360,10 @@ class AppService extends BaseService {
         }
 
         // Get options from payload
-        const options = this.parseCredentialPlatformOption(payload['options'])
+        let options = {}
+        if (credentialTypeId === MOBILE_SDK_CRED_TYPE) {
+            options = this.parseCredentialPlatformOption(payload['options'])
+        }
 
         // Init timestamp
         const timestamp = new Date()
