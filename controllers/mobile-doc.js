@@ -50,8 +50,10 @@
  * @apiDescription Trigger send OTP code via SMS
  *
  * @apiUse MobileClientCredential
- * @apiParam {String} countryCode User mobile phone country code (eg. 62 for Indonesia)
- * @apiParam {String} phone User mobile phone number
+ * @apiParam (Request Body) {String} countryCode User mobile phone country code (eg. 62 for Indonesia)
+ * @apiParam (Request Body) {String} phone User mobile phone number
+ *
+ * @apiParam (Query Parameter) {String} lang Request to receive localized OTP message. Language ID uses ISO 639-1. Default language is en (English)
  *
  * @apiUse SuccessResponse
  * @apiSuccess {Object} data Response data
