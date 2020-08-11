@@ -14,6 +14,9 @@ const
     BaseService = require('./base')
 
 const
+    Localization = require('../server/localization')
+
+const
     USER_STATUS_VERIFIED = 2,
     HASH_ID_FORMAT_VERSION = 1,
     OTP_RULE = {
@@ -320,6 +323,19 @@ class UserService extends BaseService {
         })
     }
 
+    getRequestOTPMessage(language, otpCode) {
+        // Get message by language
+        let msg = Localization.OTP_REQUEST_MESSAGE[language]
+
+        // If localization not found, or not properly formatted, then reset to default
+        if (!msg || (msg.indexOf('{OTP_CODE}') === -1)) {
+            // Get default language in english
+            msg = Localization.OTP_REQUEST_MESSAGE['en']
+        }
+
+        return msg.replace('{OTP_CODE}', otpCode)
+    }
+
     async requestLoginOTP(inputCountryCode, inputPhoneNo, option) {
         // Parse phone number input
         const phone = this.components.common.parsePhoneNo(inputCountryCode, inputPhoneNo)
@@ -339,7 +355,6 @@ class UserService extends BaseService {
         // Determine sandbox
         let devUser
         if (option && option['environmentId'] === Constants.ENV_DEVELOPMENT) {
-            this.logger.debug('')
             // Check if phone number is registered or not
             const {App} = this.services
             devUser = await App.getSandboxDevUser(option.appId, phone.number)
@@ -356,8 +371,11 @@ class UserService extends BaseService {
                 expiredAt: session.expiredAt
             })
         } else {
+            // Get localized message
+            const smsMessage = this.getRequestOTPMessage(option.language, otp.code)
+
             // Send otp
-            await this.sendSms(phone.number, `Your humanID verification code is ${otp.code}`, {
+            await this.sendSms(phone.number, smsMessage, {
                 country: phone.country,
                 appId: option.appId
             })
