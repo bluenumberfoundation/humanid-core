@@ -78,6 +78,25 @@ class MobileController extends BaseController {
                 return {}
             }))
 
+        router.post('/users/events', this.middlewares.authClientMobile, this.handleRESTAsync(
+            async (req) => {
+                // Validate request body
+                let {body} = req
+                this.validate({
+                    userFingerprint: 'required',
+                    eventName: 'required'
+                }, body)
+
+                // Send Verification via SMS
+                try {
+                    await this.services.User.logEvent(req.client.appId, body)
+                } catch (e) {
+                    this.logger.error(`failed to log event. error = ${e}`)
+                }
+
+                return {}
+            }))
+
         /**
          * @apiIgnore WIP
          * @api {get} /mobile/users/login Validate App User Access

@@ -1,7 +1,7 @@
 'use strict'
 
 const
-    LibPhoneNo = require('libphonenumber-js'),
+    _ = require('lodash'),
     crypto = require('crypto'),
     nanoId = require('nanoid'),
     argon2 = require('argon2')
@@ -39,6 +39,46 @@ class UserService extends BaseService {
         this.generateOTPCode = nanoId.customAlphabet("0123456789", OTP_RULE.otpCodeLength)
         this.generateOTPReqId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
         this.generateAppUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 20)
+    }
+
+    async logEvent(appId, {userFingerprint, eventName, metadata}) {
+        // Get references
+        const {App, UserEventLog} = this.models
+
+        // Find app
+        const app = await App.findByPk(appId)
+        if (!app) {
+            throw new Error('App not found')
+        }
+
+        // Normalize metadata
+        if (!metadata) {
+            metadata = {}
+        } else if (!_.isObject(metadata)) {
+            metadata = {
+                'str': String(metadata)
+            }
+        }
+
+        // Create user event log
+        await UserEventLog.create({
+            ownerId: app.ownerId,
+            appId: app.id,
+            appSnapshot: {
+                id: app.id,
+                ownerEntityTypeId: app.ownerEntityTypeId,
+                ownerId: app.ownerId,
+                extId: app.extId,
+                logoFile: app.logoFile,
+                appStatusId: app.appStatusId,
+                createdAt: app.createdAt,
+                updatedAt: app.updatedAt
+            },
+            userFingerprint: userFingerprint,
+            eventName: eventName,
+            metadata: metadata,
+            createdAt: new Date()
+        })
     }
 
     // getHashId generate user hash id
