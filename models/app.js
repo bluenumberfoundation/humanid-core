@@ -41,7 +41,11 @@ module.exports = sequelize => {
                 model: 'AppStatus',
                 key: 'id'
             }
-        }
+        },
+        config: {
+            type: Sequelize.JSON,
+            allowNull: true
+        },
     }, {
         tableName: TABLE_NAME,
         timestamps: true
