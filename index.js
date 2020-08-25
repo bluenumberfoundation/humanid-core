@@ -29,7 +29,7 @@ if (require.main === module) {
     } else {
         app.listen(port, () => {
             logger.info(`Listening on port ${port}...`)
-            logger.info(`Base Path: ${common.config.BASE_PATH}`)
+            logger.info(`Base URL: ${common.config.BASE_URL}`)
             logger.info(`Press CTRL+C to exit`)
 
             if (common.config.DEMO_MODE) {
