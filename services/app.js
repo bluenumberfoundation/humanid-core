@@ -116,6 +116,7 @@ class AppService extends BaseService {
 
         // Create payload
         const payload = {
+            purpose: purpose,
             signature: signature
         }
 
