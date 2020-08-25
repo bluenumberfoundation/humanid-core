@@ -4,7 +4,8 @@ const
     APIError = require('../server/api_error'),
     nanoId = require('nanoid'),
     crypto = require('crypto'),
-    {QueryTypes} = require("sequelize")
+    {QueryTypes} = require("sequelize"),
+    jwt = require('jsonwebtoken')
 
 const
     BaseService = require('./base')
@@ -63,6 +64,67 @@ class AppService extends BaseService {
         this.generateClientId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 22)
         this.generateClientSecret = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~", 64)
         this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
+        this.generateWebLoginSessionId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 64)
+    }
+
+    async requestWebLoginSession(args) {
+        // Get client id and client secret
+        const {requesterClientId: clientId, requesterClientSecret: clientSecret} = args
+
+        // Find by client id
+        const {AppCredential} = this.models
+        const appCred = await AppCredential.findOne({
+            where: {clientId}
+        })
+
+        // If credential not found, throw error
+        if (!appCred) {
+            throw new APIError("ERR_26")
+        }
+
+        // if client secret does not match, throw error
+        if (appCred.clientSecret !== clientSecret) {
+            throw new APIError("ERR_26")
+        }
+
+        return this.createWebLoginSessionToken(clientId, clientSecret)
+    }
+
+    signWebLoginPayload(sessionId, clientId, clientSecret) {
+        const salt = this.config['WEB_LOGIN_SESSION_SALT']
+        const rawSignature = `web-login-${sessionId}-${clientId}-${salt}`
+        return this.components.common.hmac(rawSignature, clientSecret)
+    }
+
+    createWebLoginSessionToken(clientId, clientSecret) {
+        // Generate web login session id
+        const sessionId = this.generateWebLoginSessionId()
+
+        // Sign credentials
+        const signature = this.signWebLoginPayload(sessionId, clientId, clientSecret)
+
+        // Create payload
+        const payload = {
+            signature: signature
+        }
+
+        // Calculate expiration
+        const lifetime = this.config['WEB_LOGIN_SESSION_LIFETIME']
+        const {dateUtil} = this.components
+        const expiredAt = dateUtil.addSecond(new Date(), lifetime)
+
+        // Create jwt
+        const secret = this.config['WEB_LOGIN_SESSION_SECRET']
+        const token = jwt.sign(payload, secret, {
+            jwtid: sessionId,
+            subject: clientId,
+            expiresIn: `${lifetime}s`
+        })
+
+        return {
+            token: token,
+            expiredAt: dateUtil.toEpoch(expiredAt)
+        }
     }
 
     async listSandboxOTPs({ownerEntityTypeId, ownerId, skip, limit}) {
