@@ -101,9 +101,9 @@ const createJWT = (user) => {
 }
 
 // verify JWT
-const verifyJWT = (token) => {
+const verifyJWT = (token, secret) => {
     return new Promise((resolve, reject) => {
-        jwt.verify(token, SECRET, (err, decodedToken) => {
+        jwt.verify(token, secret, (err, decodedToken) => {
             if (err || !decodedToken) {
                 return reject(err)
             }
