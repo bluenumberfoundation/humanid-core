@@ -115,7 +115,7 @@ class AppService extends BaseService {
 
     async requestWebLoginSession(args) {
         // Get client id and client secret
-        const {requesterClientId: clientId, requesterClientSecret: clientSecret} = args
+        const {partnerClientId: clientId, partnerClientSecret: clientSecret} = args
 
         // Find by client id
         const {AppCredential} = this.models

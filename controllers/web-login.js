@@ -24,8 +24,8 @@ class WebLoginController extends BaseController {
                 // Validate request
                 const {body} = req
                 this.validate({
-                    requesterClientId: 'required',
-                    requesterClientSecret: 'required'
+                    partnerClientId: 'required',
+                    partnerClientSecret: 'required'
                 }, body)
 
                 // Validate requester credentials
