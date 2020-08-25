@@ -87,12 +87,16 @@ class AppService extends BaseService {
             throw new APIError("ERR_26")
         }
 
-        return this.createWebLoginSessionToken(clientId, clientSecret)
+        return this.createWebLoginSessionToken({
+            clientId: clientId,
+            clientSecret: clientSecret,
+            purpose: Constants.WEB_LOGIN_SESSION_PURPOSE_REQUEST_LOGIN_OTP
+        })
     }
 
-    signWebLoginPayload(sessionId, clientId, clientSecret) {
+    signWebLoginPayload(sessionId, clientId, clientSecret, purpose) {
         const salt = this.config['WEB_LOGIN_SESSION_SALT']
-        const rawSignature = `web-login-${sessionId}-${clientId}-${salt}`
+        const rawSignature = `${purpose}-${sessionId}-${clientId}-${salt}`
         return this.components.common.hmac(rawSignature, clientSecret)
     }
 
