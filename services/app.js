@@ -8,7 +8,8 @@ const
     jwt = require('jsonwebtoken')
 
 const
-    BaseService = require('./base')
+    BaseService = require('./base'),
+    Constants = require('../constants')
 
 const
     APP_UNVERIFIED = 1
@@ -65,6 +66,51 @@ class AppService extends BaseService {
         this.generateClientSecret = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~", 64)
         this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
         this.generateWebLoginSessionId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 64)
+    }
+
+    async validateWebLoginToken({token, purpose}) {
+        // Verify jwt
+        const {common} = this.components
+        const jwtSecret = this.config['WEB_LOGIN_SESSION_SECRET']
+
+        let payload
+        try {
+            payload = await common.verifyJWT(token, jwtSecret)
+        } catch (e) {
+            // TODO: Handle jwt error and Re-throw exception with APIError
+            throw e
+        }
+
+        // Parse payload
+        const clientId = payload.sub
+        const sessionId = payload.jti
+
+        // Find credentials by client id
+        const {AppCredential} = this.models
+        const appCred = await AppCredential.findOne({
+            where: {clientId: clientId}
+        })
+
+        // If credential not found, throw error
+        if (!appCred) {
+            throw new APIError("ERR_26")
+        }
+
+        // Generate session signature
+        const expectedSignature = this.signWebLoginPayload(sessionId, appCred.clientId, appCred.clientSecret, purpose)
+
+        // Validate session signature
+        if (expectedSignature !== payload.signature) {
+            throw new APIError('ERR_27')
+        }
+
+        return {
+            appId: appCred.appId,
+            environmentId: appCred.environmentId,
+            clientId: appCred.clientId,
+            clientSecret: appCred.clientSecret,
+            sessionId: sessionId
+        }
     }
 
     async requestWebLoginSession(args) {
