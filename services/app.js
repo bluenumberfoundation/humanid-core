@@ -113,6 +113,20 @@ class AppService extends BaseService {
         }
     }
 
+    getWebLoginRedirectUrl(app) {
+        if (!app.config || !app.config['web']) {
+            throw new APIError('ERR_28')
+        }
+
+        const redirectUrl = app.config['web'].redirectUrl
+
+        if (!redirectUrl) {
+            throw new APIError('ERR_28')
+        }
+
+        return redirectUrl
+    }
+
     async requestWebLoginSession(args) {
         // Get client id and client secret
         const {partnerClientId: clientId, partnerClientSecret: clientSecret} = args
