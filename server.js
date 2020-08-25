@@ -26,7 +26,8 @@ const
     ConsoleController = require('./controllers/console'),
     MobileController = require('./controllers/mobile'),
     ServerController = require('./controllers/server'),
-    WebController = require('./controllers/web')
+    WebController = require('./controllers/web'),
+    WebLoginController = require('./controllers/web-login')
 
 const
     Middlewares = require('./server/middlewares')
@@ -97,6 +98,7 @@ class Server {
         this.app.use(`${basePath}/console`, new ConsoleController(routerParams).router)
         this.app.use(`${basePath}/mobile`, new MobileController(routerParams).router)
         this.app.use(`${basePath}/server`, new ServerController(routerParams).router)
+        this.app.use(`${basePath}/web-login`, new WebLoginController(routerParams).router)
         this.app.use(`${basePath}/web`, new WebController(models, common, nexmo).router)
         this.app.use(`${basePath}/`, express.static('doc'))
         this.app.use(`${basePath}/vendor`, express.static('doc/vendor'))

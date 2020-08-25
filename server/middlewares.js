@@ -9,6 +9,16 @@ class Middlewares {
         this.logger = logger
         this.server = server
 
+        this.authClientWebLogin = this.server.handleAsync(async (req, res, next) => {
+            // Get credential
+            const cred = this.getClientCredential(req)
+
+            // Call validation service
+            req.client = await this.services.Auth.authClient(cred, Constants.AUTH_SCOPE_WEB_LOGIN)
+
+            next()
+        })
+
         this.authClientServer = this.server.handleAsync(async (req, res, next) => {
             // Get credential
             const cred = this.getClientCredential(req)
