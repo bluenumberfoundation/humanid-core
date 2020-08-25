@@ -78,6 +78,33 @@ class WebLoginController extends BaseController {
                 }
             }
         ))
+
+        this.router.post('/users/login', this.middlewares.authClientWebLogin, this.handleRESTAsync(
+            async req => {
+                // Validate request
+                const {body} = req
+                this.validate({
+                    countryCode: 'required',
+                    phone: 'required',
+                    deviceId: 'required',
+                    verificationCode: 'required',
+                    token: 'required'
+                }, body)
+
+                // Validate web login token
+                const {App} = this.services
+                const client = await App.validateWebLoginToken({
+                    token: body.token,
+                    purpose: Constants.WEB_LOGIN_SESSION_PURPOSE_LOGIN
+                })
+
+                // Set appId
+                body.appId = client.appId
+
+                // Call login service
+                return await this.services.User.login(body)
+            }
+        ))
     }
 }
 
