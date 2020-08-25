@@ -96,12 +96,19 @@ class AppService extends BaseService {
         return this.components.common.hmac(rawSignature, clientSecret)
     }
 
-    createWebLoginSessionToken(clientId, clientSecret) {
-        // Generate web login session id
-        const sessionId = this.generateWebLoginSessionId()
+    createWebLoginSessionToken({clientId, clientSecret, purpose, sessionId, lifetime}) {
+        // If session id is unset, then generate a new session id
+        if (!sessionId) {
+            sessionId = this.generateWebLoginSessionId()
+        }
+
+        // If lifetime is unset, then set default lifetime from config
+        if (!lifetime) {
+            lifetime = this.config['WEB_LOGIN_SESSION_LIFETIME']
+        }
 
         // Sign credentials
-        const signature = this.signWebLoginPayload(sessionId, clientId, clientSecret)
+        const signature = this.signWebLoginPayload(sessionId, clientId, clientSecret, purpose)
 
         // Create payload
         const payload = {
@@ -109,7 +116,6 @@ class AppService extends BaseService {
         }
 
         // Calculate expiration
-        const lifetime = this.config['WEB_LOGIN_SESSION_LIFETIME']
         const {dateUtil} = this.components
         const expiredAt = dateUtil.addSecond(new Date(), lifetime)
 
