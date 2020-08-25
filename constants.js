@@ -12,4 +12,6 @@ module.exports = {
     AUTH_SCOPE_WEB_LOGIN: 3,
     APP_ACCESS_GRANTED: 1,
     ENV_DEVELOPMENT: 2,
+    WEB_LOGIN_SESSION_PURPOSE_REQUEST_LOGIN_OTP: 'web-login/request-login-otp',
+    WEB_LOGIN_SESSION_PURPOSE_LOGIN: 'web-login/login'
 }
