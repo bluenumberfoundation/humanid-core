@@ -12,7 +12,8 @@ const
 
 const
     SERVER_CRED_TYPE = 1,
-    MOBILE_SDK_CRED_TYPE = 2
+    MOBILE_SDK_CRED_TYPE = 2,
+    WEB_LOGIN_CRED_TYPE = 3
 
 
 class AuthService extends BaseService {
@@ -64,6 +65,8 @@ class AuthService extends BaseService {
         if (scope === Constants.AUTH_SCOPE_SERVER && credentialTypeId === SERVER_CRED_TYPE) {
             return true
         } else if (scope === Constants.AUTH_SCOPE_MOBILE && credentialTypeId === MOBILE_SDK_CRED_TYPE) {
+            return true
+        } else if (scope === Constants.AUTH_SCOPE_WEB_LOGIN && credentialTypeId === WEB_LOGIN_CRED_TYPE) {
             return true
         }
         return false
