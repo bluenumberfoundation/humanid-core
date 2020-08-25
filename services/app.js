@@ -118,9 +118,10 @@ class AppService extends BaseService {
         const {partnerClientId: clientId, partnerClientSecret: clientSecret} = args
 
         // Find by client id
-        const {AppCredential} = this.models
+        const {AppCredential, App} = this.models
         const appCred = await AppCredential.findOne({
-            where: {clientId}
+            where: {clientId},
+            include: [{model: App, as: 'app'}],
         })
 
         // If credential not found, throw error
@@ -133,11 +134,34 @@ class AppService extends BaseService {
             throw new APIError("ERR_26")
         }
 
-        return this.createWebLoginSessionToken({
+        // Generate session
+        const session = this.createWebLoginSessionToken({
             clientId: clientId,
             clientSecret: clientSecret,
             purpose: Constants.WEB_LOGIN_SESSION_PURPOSE_REQUEST_LOGIN_OTP
         })
+
+        // Resolve logo file url
+        const app = appCred['app']
+
+        let fileName
+        if (!app.logoFile) {
+            fileName = 'placeholder.png'
+        } else {
+            fileName = app.logoFile
+        }
+
+        const logoUrls = {
+            thumbnail: this.config['ASSETS_URL'] + '/images/app-thumbnails/' + fileName
+        }
+
+        return {
+            app: {
+                name: app.name,
+                logoUrls: logoUrls
+            },
+            session: session
+        }
     }
 
     signWebLoginPayload(sessionId, clientId, clientSecret, purpose) {
