@@ -133,6 +133,7 @@ class AppService extends BaseService {
         })
 
         return {
+            purpose: purpose,
             token: token,
             expiredAt: dateUtil.toEpoch(expiredAt)
         }
