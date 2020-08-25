@@ -123,5 +123,10 @@
     "success": false,
     "status": 400,
     "message": "Dev Users not found"
+  },
+  "ERR_26": {
+    "success": false,
+    "status": 400,
+    "message": "Invalid Web Log-in requester server credential"
   }
 }
