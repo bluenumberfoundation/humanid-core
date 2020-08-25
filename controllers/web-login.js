@@ -17,7 +17,7 @@ class WebLoginController extends BaseController {
     route() {
         this.router = express.Router()
 
-        this.router.post('/', this.middlewares.authClientWebLogin, this.handleRESTAsync(
+        this.router.post('/sessions', this.middlewares.authClientWebLogin, this.handleRESTAsync(
             async req => {
                 // Validate request
                 const {body} = req
