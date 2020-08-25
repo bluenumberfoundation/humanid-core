@@ -101,8 +101,20 @@ class WebLoginController extends BaseController {
                 // Set appId
                 body.appId = client.appId
 
-                // Call login service
-                return await this.services.User.login(body)
+                // Get exchange token
+                const result = await this.services.User.login(body)
+
+                // Encode exchange token to URL
+                const exchangeToken = encodeURIComponent(result.data.exchangeToken)
+
+                // Compose redirect url
+                const redirectUrl = `${client.redirectUrl}?et=${exchangeToken}`
+
+                return {
+                    data: {
+                        redirectUrl: redirectUrl
+                    }
+                }
             }
         ))
     }
