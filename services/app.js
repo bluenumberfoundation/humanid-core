@@ -86,9 +86,10 @@ class AppService extends BaseService {
         const sessionId = payload.jti
 
         // Find credentials by client id
-        const {AppCredential} = this.models
+        const {AppCredential, App} = this.models
         const appCred = await AppCredential.findOne({
-            where: {clientId: clientId}
+            where: {clientId: clientId},
+            include: [{model: App, as: 'app'}],
         })
 
         // If credential not found, throw error
@@ -104,12 +105,16 @@ class AppService extends BaseService {
             throw new APIError('ERR_27')
         }
 
+        // Retrieve redirect url value
+        const redirectUrl = this.getWebLoginRedirectUrl(appCred['app'])
+
         return {
             appId: appCred.appId,
             environmentId: appCred.environmentId,
             clientId: appCred.clientId,
             clientSecret: appCred.clientSecret,
-            sessionId: sessionId
+            sessionId: sessionId,
+            redirectUrl: redirectUrl
         }
     }
 
