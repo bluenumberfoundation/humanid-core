@@ -101,6 +101,7 @@ class Server {
         this.app.use(`${basePath}/web-login`, new WebLoginController(routerParams).router)
         this.app.use(`${basePath}/web`, new WebController(models, common, nexmo).router)
         this.app.use(`${basePath}/`, express.static('doc'))
+        this.app.use(`${basePath}/public`, express.static('public'))
         this.app.use(`${basePath}/vendor`, express.static('doc/vendor'))
 
         // Handle Errors
