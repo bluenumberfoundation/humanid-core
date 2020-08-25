@@ -128,5 +128,10 @@
     "success": false,
     "status": 400,
     "message": "Invalid Web Log-in requester server credential"
+  },
+  "ERR_27": {
+    "success": false,
+    "status": 400,
+    "message": "Invalid Web Log-in session signature"
   }
 }
