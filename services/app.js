@@ -153,6 +153,10 @@ class AppService extends BaseService {
             throw new APIError("ERR_26")
         }
 
+        // Validate redirect url configuration
+        const app = appCred['app']
+        this.getWebLoginRedirectUrl(app)
+
         // Generate session
         const session = this.createWebLoginSessionToken({
             clientId: clientId,
@@ -160,8 +164,6 @@ class AppService extends BaseService {
             purpose: Constants.WEB_LOGIN_SESSION_PURPOSE_REQUEST_LOGIN_OTP
         })
 
-        // Resolve logo file url
-        const app = appCred['app']
 
         let fileName
         if (!app.logoFile) {

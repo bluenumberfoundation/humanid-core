@@ -133,5 +133,10 @@
     "success": false,
     "status": 400,
     "message": "Invalid Web Log-in session signature"
+  },
+  "ERR_28": {
+    "success": false,
+    "status": 400,
+    "message": "Redirect URL is not configured in App"
   }
 }
