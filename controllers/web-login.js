@@ -31,7 +31,9 @@ class WebLoginController extends BaseController {
                 const result = await App.requestWebLoginSession(body)
 
                 return {
-                    data: result
+                    data: {
+                        session: result
+                    }
                 }
             }
         ))
