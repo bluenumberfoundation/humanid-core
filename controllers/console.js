@@ -46,21 +46,16 @@ class ConsoleController extends BaseController {
         }
     })
 
-    route() {
-        this.router = express.Router()
+    handleUpdateAppConfig = this.handleRESTAsync(async req => {
+        // Get request parameters
+        const payload = req.body
+        const appExtId = req.params['appExtId']
 
-        this.router.get('/apps', this.handleConsoleAuth, this.handleListApp)
-        this.router.post('/apps', this.handleConsoleAuth, this.handleCreateApp)
-        this.router.delete('/apps/:appExtId', this.handleConsoleAuth, this.handleDeleteApp)
-        this.router.post('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleCreateAppCredential)
-        this.router.get('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleListAppCredential)
-        this.router.delete('/apps/:appExtId/credentials/:clientId', this.handleConsoleAuth, this.handleDeleteAppCredential)
-        this.router.put('/apps/:appExtId/credentials/:clientId/status', this.handleConsoleAuth, this.handleToggleAppCredentialStatus)
-        this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
-        this.router.get('/sandbox/dev-users', this.handleConsoleAuth, this.handleListDevUser)
-        this.router.delete('/sandbox/dev-users/:extId', this.handleConsoleAuth, this.handleDeleteDevUser)
-        this.router.get('/sandbox/otps', this.handleConsoleAuth, this.handleListSandboxOTPs)
-    }
+        const {App} = this.services
+        await App.updateConfig(appExtId, payload)
+
+        return {}
+    })
 
     handleListDevUser = this.handleRESTAsync(async req => {
         const reqBody = {
@@ -197,6 +192,22 @@ class ConsoleController extends BaseController {
         }
     })
 
+    route() {
+        this.router = express.Router()
+
+        this.router.get('/apps', this.handleConsoleAuth, this.handleListApp)
+        this.router.post('/apps', this.handleConsoleAuth, this.handleCreateApp)
+        this.router.delete('/apps/:appExtId', this.handleConsoleAuth, this.handleDeleteApp)
+        this.router.post('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleCreateAppCredential)
+        this.router.get('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleListAppCredential)
+        this.router.put('/apps/:appExtId/configurations', this.handleConsoleAuth, this.handleUpdateAppConfig)
+        this.router.delete('/apps/:appExtId/credentials/:clientId', this.handleConsoleAuth, this.handleDeleteAppCredential)
+        this.router.put('/apps/:appExtId/credentials/:clientId/status', this.handleConsoleAuth, this.handleToggleAppCredentialStatus)
+        this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
+        this.router.get('/sandbox/dev-users', this.handleConsoleAuth, this.handleListDevUser)
+        this.router.delete('/sandbox/dev-users/:extId', this.handleConsoleAuth, this.handleDeleteDevUser)
+        this.router.get('/sandbox/otps', this.handleConsoleAuth, this.handleListSandboxOTPs)
+    }
 
     handleToggleAppCredentialStatus = this.handleRESTAsync(async req => {
         const appExtId = req.params['appExtId']

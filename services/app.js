@@ -84,6 +84,24 @@ class AppService extends BaseService {
         }
     }
 
+    async updateConfig(appExtId, payload) {
+        // Get app by external id
+        const app = await this.getApp(appExtId)
+
+        // Validate config schema
+        const validationResult = this.schemas.appConfig.validate(payload)
+
+        // Return validation result
+        if (validationResult.error) {
+            this.logger.error(`ValidationError = ${validationResult.error}`)
+            throw new APIError('ERR_29').setData({"validationError": validationResult.error.details})
+        }
+
+        // Save config
+        app.config = payload
+        app.save()
+    }
+
     async getAppWebLoginInfo(appExtId) {
         // Get app by external id
         const app = await this.getApp(appExtId)
