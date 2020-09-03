@@ -114,7 +114,7 @@ class AppService extends BaseService {
             clientId: appCred.clientId,
             clientSecret: appCred.clientSecret,
             sessionId: sessionId,
-            redirectUrl: redirectUrl
+            redirectUrl: redirectUrl.success
         }
     }
 
@@ -123,13 +123,21 @@ class AppService extends BaseService {
             throw new APIError('ERR_28')
         }
 
-        const redirectUrl = app.config['web'].redirectUrl
-
-        if (!redirectUrl) {
+        const webConfig = app.config['web']
+        if (!webConfig || typeof webConfig !== 'object') {
             throw new APIError('ERR_28')
         }
 
-        return redirectUrl
+        const redirectUrls = webConfig['redirectUrls']
+        if (!redirectUrls || typeof redirectUrls !== 'object') {
+            throw new APIError('ERR_28')
+        }
+
+        if (!redirectUrls.success || !redirectUrls.failed) {
+            throw new APIError('ERR_28')
+        }
+
+        return redirectUrls
     }
 
     async requestWebLoginSession(args) {
