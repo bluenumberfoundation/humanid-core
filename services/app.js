@@ -5,7 +5,8 @@ const
     nanoId = require('nanoid'),
     crypto = require('crypto'),
     {QueryTypes} = require("sequelize"),
-    jwt = require('jsonwebtoken')
+    jwt = require('jsonwebtoken'),
+    Joi = require('joi')
 
 const
     BaseService = require('./base'),
@@ -66,6 +67,21 @@ class AppService extends BaseService {
         this.generateClientSecret = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~", 64)
         this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
         this.generateWebLoginSessionId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 64)
+
+        // Init validation schemas
+        const webConfig = Joi.object().keys({
+            redirectUrls: Joi.object({
+                success: Joi.string().required(),
+                failed: Joi.string().required()
+            }).required()
+        }).required()
+
+        this.schemas = {
+            webConfig: webConfig,
+            appConfig: Joi.object().keys({
+                web: webConfig
+            })
+        }
     }
 
     async getAppWebLoginInfo(appExtId) {
@@ -176,25 +192,19 @@ class AppService extends BaseService {
     }
 
     getWebLoginRedirectUrl(app) {
-        if (!app.config || !app.config['web']) {
+        if (!app.config) {
+            this.logger.error('app.config is empty')
             throw new APIError('ERR_28')
         }
 
-        const webConfig = app.config['web']
-        if (!webConfig || typeof webConfig !== 'object') {
+        const result = this.schemas.webConfig.validate(app.config['web'])
+
+        if (result.error) {
+            this.logger.error(`ValidationError = ${result.error}`)
             throw new APIError('ERR_28')
         }
 
-        const redirectUrls = webConfig['redirectUrls']
-        if (!redirectUrls || typeof redirectUrls !== 'object') {
-            throw new APIError('ERR_28')
-        }
-
-        if (!redirectUrls.success || !redirectUrls.failed) {
-            throw new APIError('ERR_28')
-        }
-
-        return redirectUrls
+        return app.config.web.redirectUrls
     }
 
     async requestWebLoginSession(args) {

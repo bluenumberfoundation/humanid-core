@@ -32,6 +32,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-paginate": "^1.0.0",
+    "joi": "^17.2.1",
     "jsonwebtoken": "^8.5.1",
     "libphonenumber-js": "^1.7.53",
     "lodash": "^4.17.19",
