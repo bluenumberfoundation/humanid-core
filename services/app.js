@@ -201,7 +201,7 @@ class AppService extends BaseService {
 
         if (result.error) {
             this.logger.error(`ValidationError = ${result.error}`)
-            throw new APIError('ERR_28')
+            throw new APIError('ERR_28').setData({"validationError": result.error.details})
         }
 
         return app.config.web.redirectUrls
