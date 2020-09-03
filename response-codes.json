@@ -138,5 +138,10 @@
     "success": false,
     "status": 400,
     "message": "Redirect URL is not configured in App"
+  },
+  "ERR_29": {
+    "success": false,
+    "status": 400,
+    "message": "Invalid App configuration request body"
   }
 }
