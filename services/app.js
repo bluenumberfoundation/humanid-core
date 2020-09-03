@@ -68,6 +68,35 @@ class AppService extends BaseService {
         this.generateWebLoginSessionId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 64)
     }
 
+    async getAppWebLoginInfo(appExtId) {
+        // Get app by external id
+        const app = await this.getApp(appExtId)
+
+        // Get redirect url
+        const redirectUrls = this.getWebLoginRedirectUrl(app)
+
+        // Resolve assets url
+        let fileName
+        if (!app.logoFile) {
+            fileName = 'placeholder.png'
+        } else {
+            fileName = app.logoFile
+        }
+
+        const logoUrls = {
+            thumbnail: this.config['ASSETS_URL'] + '/images/app-thumbnails/' + fileName
+        }
+
+        // Composer response
+        return {
+            app: {
+                name: app.name,
+                logoUrls: logoUrls,
+                redirectUrlFail: redirectUrls.failed
+            }
+        }
+    }
+
     async getWebLoginURL(args) {
         // Get client id and client secret
         const {appId, appCredential, languageCode} = args

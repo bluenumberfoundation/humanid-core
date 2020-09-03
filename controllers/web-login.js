@@ -19,6 +19,21 @@ class WebLoginController extends BaseController {
     route() {
         this.router = express.Router()
 
+        this.router.get('/apps/:appExtId', this.middlewares.authClientWebLogin, this.handleRESTAsync(
+            async req => {
+                // Get app external id
+                const appExtId = req.params['appExtId']
+
+                // Get app info
+                const {App} = this.services
+                const result = await App.getAppWebLoginInfo(appExtId)
+
+                return {
+                    data: result
+                }
+            }
+        ))
+
         this.router.post('/sessions', this.middlewares.authClientWebLogin, this.handleRESTAsync(
             async req => {
                 // Validate request
