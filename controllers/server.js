@@ -17,6 +17,25 @@ class ServerController extends BaseController {
     route() {
         this.router = express.Router()
 
+        this.router.post('/users/web-login', this.middlewares.authClientServer, this.handleRESTAsync(
+            async req => {
+                // Get language parameter
+                const lang = req.query['lang'] || 'en'
+
+                // Validate requester credentials
+                const {App} = this.services
+                const result = await App.getWebLoginURL({
+                    appId: req.client.appId,
+                    appCredential: req.client.appCredential,
+                    languageCode: lang
+                })
+
+                return {
+                    data: result
+                }
+            }
+        ))
+
         this.router.post('/users/exchange', this.middlewares.authClientServer, this.handleRESTAsync(
             async req => {
                 // Validate request

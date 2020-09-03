@@ -68,6 +68,34 @@ class AppService extends BaseService {
         this.generateWebLoginSessionId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 64)
     }
 
+    async getWebLoginURL(args) {
+        // Get client id and client secret
+        const {appId, appCredential, languageCode} = args
+
+        // Find by client id
+        const {App} = this.models
+
+        // Validate redirect url configuration
+        const app = await App.findOne({
+            where: {id: appId}
+        })
+        this.getWebLoginRedirectUrl(app)
+
+        // Generate session
+        const session = this.createWebLoginSessionToken({
+            clientId: appCredential.clientId,
+            clientSecret: appCredential.clientSecret,
+            purpose: Constants.WEB_LOGIN_SESSION_PURPOSE_REQUEST_LOGIN_OTP
+        })
+
+        // Generate web login URL
+        let webLoginURL = `${this.config['WEB_LOGIN_URL']}?t=${session.token}&a=${app.extId}&lang=${languageCode}`
+
+        return {
+            webLoginUrl: webLoginURL
+        }
+    }
+
     async validateWebLoginToken({token, purpose}) {
         // Verify jwt
         const {common} = this.components
