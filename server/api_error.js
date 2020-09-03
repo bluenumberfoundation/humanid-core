@@ -15,6 +15,11 @@ class APIError extends Error {
         this.message = message
         this.source = source
     }
+
+    setData(data) {
+        this.data = data
+        return this
+    }
 }
 
 module.exports = APIError

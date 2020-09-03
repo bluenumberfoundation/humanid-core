@@ -182,6 +182,9 @@ class Server {
             this.logger.error(err.stack, {scope: 'Server'})
         } else {
             resp = responseMapper.get(err.code)
+            if (err.data) {
+                data = err.data
+            }
         }
 
         // Compose body
