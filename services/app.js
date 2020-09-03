@@ -71,10 +71,10 @@ class AppService extends BaseService {
         // Init validation schemas
         const webConfig = Joi.object().keys({
             redirectUrls: Joi.object({
-                success: Joi.string().required(),
-                failed: Joi.string().required()
-            }).required()
-        }).required()
+                success: Joi.string().uri(),
+                failed: Joi.string().uri()
+            })
+        })
 
         this.schemas = {
             webConfig: webConfig,
