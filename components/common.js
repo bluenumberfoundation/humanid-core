@@ -206,6 +206,11 @@ const parsePhoneNo = (countryCode, phoneNo) => {
         throw new APIError("ERR_10")
     }
 
+    // Check for country
+    if (!result.country) {
+        throw new APIError("ERR_10")
+    }
+
     return result
 }
 
