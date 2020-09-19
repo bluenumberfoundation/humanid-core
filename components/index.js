@@ -6,7 +6,8 @@ const
     ResponseMapper = require('./response-mapper'),
     smsNexmo = require('./nexmo'),
     smsAWS = require('./aws-sms'),
-    smsVonage = require('./vonage-sms')
+    smsVonage = require('./vonage-sms'),
+    logger = require('../logger')
 
 function init({config}) {
     // Init response mapper singleton
@@ -22,7 +23,12 @@ function init({config}) {
     smsVonage.init({
         apiKey: config['NEXMO_API_KEY'],
         apiSecret: config['NEXMO_API_SECRET'],
-        defaultSenderId: config['NEXMO_FROM']
+        senderIdDefault: config['NEXMO_SENDER_ID_DEFAULT'],
+        senderIdMap: {
+            'US': config['NEXMO_SENDER_ID_US'],
+            'VN': config['NEXMO_SENDER_ID_VN']
+        },
+        logger: logger
     })
 
     // Return components

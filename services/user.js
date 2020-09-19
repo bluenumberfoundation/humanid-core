@@ -325,6 +325,9 @@ class UserService extends BaseService {
                 break
             default:
                 provider = this.components.smsVonage
+                options = {
+                    countryCode: country
+                }
         }
 
         return {
