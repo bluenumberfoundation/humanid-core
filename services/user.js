@@ -366,13 +366,23 @@ class UserService extends BaseService {
         })
     }
 
-    getRequestOTPMessage(language, otpCode) {
-        // Get message by language
-        let msg = Localization.OTP_REQUEST_MESSAGE[language]
+    getRequestOTPMessage(languagePref, countryCode, otpCode) {
+        // Get message by user preference
+        let msg = Localization.OTP_REQUEST_MESSAGE[languagePref.toLowerCase()]
 
-        // If localization not found, or not properly formatted, then reset to default
-        if (!msg || (msg.indexOf('{OTP_CODE}') === -1)) {
-            // Get default language in english
+        // If message by user preference not found, then find by country code
+        if (!msg) {
+            msg = Localization.OTP_REQUEST_MESSAGE[countryCode.toLowerCase()]
+
+            // if message by country code not found then set to english
+            if (!msg) {
+                msg = Localization.OTP_REQUEST_MESSAGE['en']
+            }
+        }
+
+        // If message is not properly formatted, then reset to english
+        if (msg.indexOf('{OTP_CODE}') === -1) {
+            // Get default languagePref in english
             msg = Localization.OTP_REQUEST_MESSAGE['en']
         }
 
@@ -415,7 +425,7 @@ class UserService extends BaseService {
             })
         } else {
             // Get localized message
-            const smsMessage = this.getRequestOTPMessage(option.language, otp.code)
+            const smsMessage = this.getRequestOTPMessage(option.language, phone.country, otp.code)
 
             // Send otp
             await this.sendSms(phone.number, smsMessage, {
