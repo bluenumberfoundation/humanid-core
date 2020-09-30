@@ -59,7 +59,7 @@ class VonageSmsProvider {
             case "tw":
             case "vn":
                 return {
-                    message: encodeURIComponent(message),
+                    message: message,
                     textType: "unicode"
                 }
             default:
