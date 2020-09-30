@@ -39,17 +39,50 @@ class VonageSmsProvider {
         return senderId
     }
 
+    getTextParams(message, options) {
+        if (!options || !options.lang) {
+            return {
+                message: message,
+                textType: "text"
+            }
+        }
+
+        switch (options.lang) {
+            case "bd":
+            case "cn":
+            case "gr":
+            case "in":
+            case "jp":
+            case "ko":
+            case "ru":
+            case "th":
+            case "tw":
+            case "vn":
+                return {
+                    message: encodeURIComponent(message),
+                    textType: "unicode"
+                }
+            default:
+                return {
+                    message: message,
+                    textType: "text"
+                }
+        }
+    }
+
     // Send sms
     async sendSms({phoneNo, message}, options) {
         const senderId = this.getSenderId(options)
-        this.logger.debug(`sender id = ${senderId}`)
+
+        const textParams = this.getTextParams(message, options)
 
         const params = new URLSearchParams()
         params.append('from', senderId)
-        params.append('text', message)
+        params.append('text', textParams.message)
         params.append('to', phoneNo)
         params.append('api_key', this.apiKey)
         params.append('api_secret', this.apiSecret)
+        params.append('type', textParams.textType)
 
         const resp = await fetch(`${REST_URL}/sms/json`, {
             method: 'post',
