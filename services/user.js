@@ -340,6 +340,9 @@ class UserService extends BaseService {
         // Switch provider by country code
         const {provider, options} = this.switchProviderByCountry(metadata.country)
 
+        // Set language
+        options.lang = metadata.lang
+
         // Call sms request
         let providerTrxSnapshot = {}
         try {
@@ -433,12 +436,13 @@ class UserService extends BaseService {
             })
         } else {
             // Get localized message
-            const smsMessage = this.getRequestOTPMessage(option.language, phone.country, otp.code)
+            const smsMessageResult = this.getRequestOTPMessage(option.language, phone.country, otp.code)
 
             // Send otp
-            await this.sendSms(phone.number, smsMessage, {
+            await this.sendSms(phone.number, smsMessageResult.text, {
                 country: phone.country,
-                appId: option.appId
+                appId: option.appId,
+                lang: smsMessageResult.lang
             })
         }
 
