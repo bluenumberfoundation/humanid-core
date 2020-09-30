@@ -372,21 +372,29 @@ class UserService extends BaseService {
 
         // If message by user preference not found, then find by country code
         if (!msg) {
-            msg = Localization.OTP_REQUEST_MESSAGE[countryCode.toLowerCase()]
+            languagePref = countryCode.toLowerCase()
+            msg = Localization.OTP_REQUEST_MESSAGE[languagePref]
 
             // if message by country code not found then set to english
             if (!msg) {
-                msg = Localization.OTP_REQUEST_MESSAGE['en']
+                languagePref = 'en'
+                msg = Localization.OTP_REQUEST_MESSAGE[languagePref]
             }
         }
 
         // If message is not properly formatted, then reset to english
         if (msg.indexOf('{OTP_CODE}') === -1) {
             // Get default languagePref in english
+            languagePref = 'en'
             msg = Localization.OTP_REQUEST_MESSAGE['en']
         }
 
-        return msg.replace('{OTP_CODE}', otpCode)
+        msg = msg.replace('{OTP_CODE}', otpCode)
+
+        return {
+            text: msg,
+            lang: languagePref
+        }
     }
 
     async requestLoginOTP(inputCountryCode, inputPhoneNo, option) {
