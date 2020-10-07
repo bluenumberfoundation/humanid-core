@@ -73,7 +73,21 @@ class AuthService extends BaseService {
         return false
     }
 
+    cleanExchangeToken(token) {
+        // Determine whether exchange token is encoded or not with "/" or %2F
+        const i = token.indexOf("%2F")
+        if (i !== -1) {
+            this.logger.debug("decoding exchange token")
+            token = decodeURIComponent(token)
+        }
+
+        return token
+    }
+
     async validateExchangeToken(exchangeToken) {
+        // Clean exchange token
+        exchangeToken = this.cleanExchangeToken(exchangeToken)
+
         // Get references
         const {UserExchangeSession, AppUser} = this.models
         const {dateUtil} = this.components
