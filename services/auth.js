@@ -13,7 +13,8 @@ const
 const
     SERVER_CRED_TYPE = 1,
     MOBILE_SDK_CRED_TYPE = 2,
-    WEB_LOGIN_CRED_TYPE = 3
+    WEB_LOGIN_CRED_TYPE = 3,
+    URL_ENCODED_REGEXP = /^(?:[^%]|%[0-9A-Fa-f]{2})+$/
 
 
 class AuthService extends BaseService {
@@ -75,8 +76,7 @@ class AuthService extends BaseService {
 
     cleanExchangeToken(token) {
         // Determine whether exchange token is encoded or not with "/" or %2F
-        const i = token.indexOf("%2F")
-        if (i !== -1) {
+        if (URL_ENCODED_REGEXP.test(token)) {
             this.logger.debug("decoding exchange token")
             token = decodeURIComponent(token)
         }
