@@ -13,8 +13,12 @@ const
     db = {}
 
 // Configure logging function
-const logSequelize = msg => {
-    logger.debug(msg)
+let enableLog = process.env.ENABLE_SEQUELIZE_LOG
+let logSequelize
+if (enableLog && enableLog === 'true') {
+    logSequelize = msg => {
+        logger.debug(msg)
+    }
 }
 
 let sequelize
