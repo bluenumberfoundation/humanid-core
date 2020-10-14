@@ -86,6 +86,7 @@ class AuthService extends BaseService {
 
     async validateExchangeToken(exchangeToken) {
         // Clean exchange token
+        const originExchangeToken = exchangeToken
         exchangeToken = this.cleanExchangeToken(exchangeToken)
 
         // Get references
@@ -119,6 +120,8 @@ class AuthService extends BaseService {
             payload = this.decryptAES(encryptedPayload, session.iv)
         } catch (e) {
             this.logger.error(`ERROR: unable to decrypt exchange token. Error=${e}`)
+            this.logger.debug(`Original=${originExchangeToken}`)
+            this.logger.debug(`Processed=${exchangeToken}`)
             throw new APIError("ERR_1")
         }
 
