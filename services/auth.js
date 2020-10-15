@@ -165,12 +165,6 @@ class AuthService extends BaseService {
             where: {id: id}
         })
         this.logger.debug(`Deleted exchange session: ${count}`)
-
-        // Clear dangling expired exchange token
-        count = await UserExchangeSession.destroy({
-            where: {expiredAt: {[Op.lte]: t}}
-        })
-        this.logger.debug(`Deleted dangling exchange session: ${count}. t=${t.toString()}`)
     }
 
     async createExchangeToken(appUser) {
