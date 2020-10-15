@@ -106,6 +106,8 @@ class AuthService extends BaseService {
         // Validate session existence
         if (!session) {
             this.logger.debug("Invalid session: session not found")
+            this.logger.debug(`Original=${originExchangeToken}`)
+            this.logger.debug(`ExchangeId=${exchangeId}`)
             throw new APIError("ERR_1")
         }
 
