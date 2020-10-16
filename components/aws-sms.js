@@ -18,10 +18,14 @@ class AwsSmsProvider {
     }
 
     // Send sms
-    async sendSms({phoneNo, message, senderId}, {region}) {
+    async sendSms({phoneNo, message}, {region, senderId}) {
         // Determine region
         if (!region) {
             region = this.defaultRegion
+        }
+
+        if (!senderId) {
+            senderId = 'HUMANID'
         }
 
         // Create client
