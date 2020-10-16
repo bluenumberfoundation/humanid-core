@@ -89,6 +89,10 @@ class AuthService extends BaseService {
         const originExchangeToken = exchangeToken
         exchangeToken = this.cleanExchangeToken(exchangeToken)
 
+        // Get current timestamp
+        const t = new Date()
+        this.logger.debug(`t=${t.toUTCString()}, exchangeToken=${exchangeToken}, originalInput=${originExchangeToken}`)
+
         // Get references
         const {UserExchangeSession, AppUser} = this.models
         const {dateUtil} = this.components
@@ -106,13 +110,11 @@ class AuthService extends BaseService {
         // Validate session existence
         if (!session) {
             this.logger.debug("Invalid session: session not found")
-            this.logger.debug(`Original=${originExchangeToken}`)
-            this.logger.debug(`ExchangeId=${exchangeId}`)
             throw new APIError("ERR_1")
         }
 
         // Validate expiry
-        if (dateUtil.compare(new Date(), session.expiredAt) === dateUtil.GREATER_THAN) {
+        if (dateUtil.compare(t, session.expiredAt) === dateUtil.GREATER_THAN) {
             throw new APIError("ERR_2")
         }
 
@@ -122,8 +124,6 @@ class AuthService extends BaseService {
             payload = this.decryptAES(encryptedPayload, session.iv)
         } catch (e) {
             this.logger.error(`ERROR: unable to decrypt exchange token. Error=${e}`)
-            this.logger.debug(`Original=${originExchangeToken}`)
-            this.logger.debug(`Processed=${exchangeToken}`)
             throw new APIError("ERR_1")
         }
 
@@ -150,7 +150,7 @@ class AuthService extends BaseService {
         }
 
         // Clear exchange token
-        await this.clearExchangeToken(session.id, new Date())
+        await this.clearExchangeToken(session.id, t)
 
         return {
             appUserId: appUser.extId
