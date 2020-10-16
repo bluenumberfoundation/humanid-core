@@ -320,7 +320,8 @@ class UserService extends BaseService {
             case 'IN':
                 provider = this.components.smsAWS
                 options = {
-                    region: 'ap-south-1'
+                    region: 'ap-south-1',
+                    senderId: 'HUMANID'
                 }
                 break
             default:
