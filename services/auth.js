@@ -91,7 +91,6 @@ class AuthService extends BaseService {
 
         // Get current timestamp
         const t = new Date()
-        this.logger.debug(`t=${t.toUTCString()}, exchangeToken=${exchangeToken}, originalInput=${originExchangeToken}`)
 
         // Get references
         const {UserExchangeSession, AppUser} = this.models
@@ -100,6 +99,7 @@ class AuthService extends BaseService {
         // extract exchange id and encrypted payload
         const exchangeId = exchangeToken.slice(0, 24);
         const encryptedPayload = exchangeToken.slice(25, exchangeToken.length);
+        this.logger.debug(`t=${t.toUTCString()}, exchangeId=${exchangeId}, exchangeToken=${encryptedPayload}, originalInput=${originExchangeToken}`)
 
         // Get exchange session by external id
         const session = await UserExchangeSession.findOne({
@@ -124,6 +124,7 @@ class AuthService extends BaseService {
             payload = this.decryptAES(encryptedPayload, session.iv)
         } catch (e) {
             this.logger.error(`ERROR: unable to decrypt exchange token. Error=${e}`)
+            this.logger.debug(`enc=${encryptedPayload}, iv=${session.iv}}`)
             throw new APIError("ERR_1")
         }
 
