@@ -20,9 +20,13 @@ if (logFormat === 'console') {
             // Set metadata
             let metadata = ''
             if (info.metadata) {
-                metadata = '\n' + JSON.stringify(info.metadata, null, 4)
+                metadata = '\n  > metadata:' + JSON.stringify(info.metadata, null, 4)
             }
-            return `[${info.timestamp}] ${info.level}:\t${info.message}${metadata}`
+            let stackTrace = ''
+            if (info.stackTrace) {
+                stackTrace = `\n  > stackTrace: ${info.stackTrace}`
+            }
+            return `[${info.timestamp}] ${info.level}:\t${info.message}${metadata}${stackTrace}`
         }),
     )
 } else {
