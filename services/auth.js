@@ -151,6 +151,12 @@ class AuthService extends BaseService {
         }
 
         // Clear exchange token
+        this.logger.debug(`Deleting exchange session...`, {
+            stackTrace: new Error().stack,
+            metadata: {
+                exchangeId: exchangeId
+            }
+        })
         await this.clearExchangeToken(session.id, t)
 
         return {
@@ -165,7 +171,9 @@ class AuthService extends BaseService {
         let count = await UserExchangeSession.destroy({
             where: {id: id}
         })
-        this.logger.debug(`Deleted exchange session: ${count}`)
+        this.logger.debug(`Deleted exchange session: ${count}. id=${id}`, {
+            stackTrace: new Error().stack
+        })
     }
 
     async createExchangeToken(appUser) {
@@ -190,6 +198,10 @@ class AuthService extends BaseService {
             iv: iv.toString('hex'),
             expiredAt: expiredAt,
             createdAt: timestamp
+        })
+
+        this.logger.debug(`exchangeSession created: ${exchangeId}`, {
+            stackTrace: new Error().stack
         })
 
         // Create payload
