@@ -108,7 +108,8 @@ class AppService extends BaseService {
         const app = await this.getApp(appExtId)
 
         // Get redirect url
-        const redirectUrls = this.getWebLoginRedirectUrl(app)
+        this.validateWebAppConfig(app)
+        const redirectUrls = app.config.web.redirectUrls
 
         // Resolve assets url
         let fileName
@@ -198,7 +199,9 @@ class AppService extends BaseService {
         }
 
         // Retrieve redirect url value
-        const redirectUrl = this.getWebLoginRedirectUrl(appCred['app'])
+        const app = appCred['app']
+        this.validateWebAppConfig(app)
+        const redirectUrl = app.config.web.redirectUrls
 
         return {
             appId: appCred.appId,
@@ -210,7 +213,7 @@ class AppService extends BaseService {
         }
     }
 
-    getWebLoginRedirectUrl(app) {
+    validateWebAppConfig(app) {
         if (!app.config) {
             this.logger.error('app.config is empty')
             throw new APIError('ERR_28')
@@ -222,8 +225,6 @@ class AppService extends BaseService {
             this.logger.error(`ValidationError = ${result.error}`)
             throw new APIError('ERR_28').setData({"validationError": result.error.details})
         }
-
-        return app.config.web.redirectUrls
     }
 
     async requestWebLoginSession(args) {
@@ -249,7 +250,7 @@ class AppService extends BaseService {
 
         // Validate redirect url configuration
         const app = appCred['app']
-        this.getWebLoginRedirectUrl(app)
+        this.validateWebAppConfig(app)
 
         // Generate session
         const session = this.createWebLoginSessionToken({
