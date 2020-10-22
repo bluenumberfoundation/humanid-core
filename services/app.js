@@ -6,7 +6,8 @@ const
     crypto = require('crypto'),
     {QueryTypes} = require("sequelize"),
     jwt = require('jsonwebtoken'),
-    Joi = require('joi')
+    Joi = require('joi'),
+    _ = require('lodash')
 
 const
     BaseService = require('./base'),
@@ -135,7 +136,8 @@ class AppService extends BaseService {
 
     async getWebLoginURL(args) {
         // Get client id and client secret
-        const {appId, appCredential, languageCode, priorityCountry} = args
+        const {appId, appCredential, languageCode} = args
+        let {priorityCountry} = args
 
         // Find by client id
         const {App} = this.models
@@ -144,7 +146,18 @@ class AppService extends BaseService {
         const app = await App.findOne({
             where: {id: appId}
         })
-        this.getWebLoginRedirectUrl(app)
+        this.validateWebAppConfig(app)
+
+        // Get priority country from config if not set by user
+        if (priorityCountry === '') {
+            const priorityCountryConf = app.config.web.priorityCountry
+            if (priorityCountryConf && priorityCountryConf.length > 0) {
+                // Convert country to comma separated
+                priorityCountry = _.join(priorityCountryConf)
+            } else {
+                priorityCountry = 'US'
+            }
+        }
 
         // Generate session
         const session = this.createWebLoginSessionToken({
