@@ -167,7 +167,7 @@ class AppService extends BaseService {
         })
 
         // Generate web login URL
-        let webLoginURL = `${this.config['WEB_LOGIN_URL']}?t=${session.token}&a=${app.extId}&lang=${languageCode}&priority_country=${priorityCountry}`
+        let webLoginURL = `${this.config['WEB_LOGIN_URL']}?t=${session.token}&a=${app.extId}&lang=${languageCode}&priority_country=${priorityCountry.toUpperCase()}`
 
         return {
             webLoginUrl: webLoginURL
