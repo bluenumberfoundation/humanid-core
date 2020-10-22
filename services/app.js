@@ -133,7 +133,7 @@ class AppService extends BaseService {
 
     async getWebLoginURL(args) {
         // Get client id and client secret
-        const {appId, appCredential, languageCode} = args
+        const {appId, appCredential, languageCode, priorityCountry} = args
 
         // Find by client id
         const {App} = this.models
@@ -152,7 +152,7 @@ class AppService extends BaseService {
         })
 
         // Generate web login URL
-        let webLoginURL = `${this.config['WEB_LOGIN_URL']}?t=${session.token}&a=${app.extId}&lang=${languageCode}`
+        let webLoginURL = `${this.config['WEB_LOGIN_URL']}?t=${session.token}&a=${app.extId}&lang=${languageCode}&priority_country=${priorityCountry}`
 
         return {
             webLoginUrl: webLoginURL
