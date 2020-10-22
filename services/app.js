@@ -73,7 +73,8 @@ class AppService extends BaseService {
             redirectUrls: Joi.object({
                 success: Joi.string().uri(),
                 failed: Joi.string().uri()
-            })
+            }),
+            priorityCountry: Joi.array().items(Joi.string().length(2)).optional()
         })
 
         this.schemas = {
