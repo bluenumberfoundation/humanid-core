@@ -21,13 +21,15 @@ class ServerController extends BaseController {
             async req => {
                 // Get language parameter
                 const lang = req.query['lang'] || 'en'
+                const priorityCountry = req.query['priority_country'] || 'us'
 
                 // Validate requester credentials
                 const {App} = this.services
                 const result = await App.getWebLoginURL({
                     appId: req.client.appId,
                     appCredential: req.client.appCredential,
-                    languageCode: lang
+                    languageCode: lang,
+                    priorityCountry: priorityCountry
                 })
 
                 return {
