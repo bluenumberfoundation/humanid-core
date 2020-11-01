@@ -13,3 +13,7 @@ serviceAccountKey.json
 
 # Generated files
 doc/
+
+# Public dir
+public/images/app-thumbnails/*
+!public/images/app-thumbnails/placeholder.png
