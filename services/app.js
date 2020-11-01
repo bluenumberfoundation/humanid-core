@@ -402,6 +402,30 @@ class AppService extends BaseService {
         return OrgDevUser.findOne({where: {hashId: hashId}})
     }
 
+    async getAppDetail(extId) {
+        // Get models
+        const {App} = this.models
+
+        // Get app
+        const app = await App.findOne({where: {extId}})
+        if (!app) {
+            throw new APIError('ERR_17')
+        }
+
+        return {
+            extId: app.extId,
+            ownerEntityTypeId: app.ownerEntityTypeId,
+            ownerId: app.ownerId,
+            name: app.name,
+            logoFile: app.logoFile,
+            logoUrls: this.resolveLogoUrl(app.logoFile),
+            appStatusId: app.appStatusId,
+            config: app.config,
+            createdAt: app.createdAt,
+            updatedAt: app.updatedAt
+        }
+    }
+
     async deleteSandboxDevUser(extId) {
         // Get models
         const {OrgDevUser, UserOTPSandbox} = this.models
