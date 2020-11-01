@@ -104,6 +104,17 @@ class AppService extends BaseService {
         app.save()
     }
 
+    resolveLogoUrl(fileName) {
+        // Resolve assets url
+        if (!fileName) {
+            fileName = 'placeholder.png'
+        }
+
+        return {
+            thumbnail: this.config['ASSETS_URL'] + '/images/app-thumbnails/' + fileName
+        }
+    }
+
     async getAppWebLoginInfo(appExtId) {
         // Get app by external id
         const app = await this.getApp(appExtId)
@@ -113,16 +124,7 @@ class AppService extends BaseService {
         const redirectUrls = app.config.web.redirectUrls
 
         // Resolve assets url
-        let fileName
-        if (!app.logoFile) {
-            fileName = 'placeholder.png'
-        } else {
-            fileName = app.logoFile
-        }
-
-        const logoUrls = {
-            thumbnail: this.config['ASSETS_URL'] + '/images/app-thumbnails/' + fileName
-        }
+        const logoUrls = this.resolveLogoUrl(app.logoFile)
 
         // Composer response
         return {
@@ -711,7 +713,7 @@ class AppService extends BaseService {
                 ownerEntityTypeId: item.ownerEntityTypeId,
                 ownerId: item.ownerId,
                 name: item.name,
-                logoFile: item.logoFile,
+                logoUrls: this.resolveLogoUrl(item.logoFile),
                 appStatusId: item.appStatusId,
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt
