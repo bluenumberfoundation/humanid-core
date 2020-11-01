@@ -143,5 +143,15 @@
     "success": false,
     "status": 400,
     "message": "Invalid App configuration request body"
+  },
+  "ERR_30": {
+    "success": false,
+    "status": 400,
+    "message": "App logo file extension must be jpg, jpeg and png"
+  },
+  "ERR_31": {
+    "success": false,
+    "status": 400,
+    "message": "App logo file size must be 1 MB max"
   }
 }

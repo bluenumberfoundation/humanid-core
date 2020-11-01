@@ -31,11 +31,13 @@ config.NEXMO_API_URL = process.env.NEXMO_API_URL || 'https://api.nexmo.com'
 config.NEXMO_REST_URL = process.env.NEXMO_REST_URL || 'https://rest.nexmo.com'
 
 // Server
+config.WORK_DIR = process.env.WORK_DIR || process.cwd()
 config.APP_PORT = process.env.APP_PORT || config.APP_PORT || 3000
 config.DEBUG = process.env.DEBUG || false
 config.BASE_PATH = process.env.BASE_PATH || config.BASE_PATH || ''
 config.BASE_URL = process.env.BASE_URL || config.BASE_URL || `http://localhost:${config.APP_PORT}${config.BASE_PATH}`
 config.ASSETS_URL = process.env.ASSETS_URL || config.ASSETS_URL || config.BASE_URL + '/public'
+config.ASSETS_DIR = process.env.ASSETS_DIR || config.ASSETS_DIR || path.join(config.WORK_DIR, '/public')
 
 // Server.DemoMode
 config.DEMO_MODE = process.env.DEMO_MODE || config.DEMO_MODE || false

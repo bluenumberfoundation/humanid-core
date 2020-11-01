@@ -7,7 +7,10 @@ const
     {QueryTypes} = require("sequelize"),
     jwt = require('jsonwebtoken'),
     Joi = require('joi'),
-    _ = require('lodash')
+    _ = require('lodash'),
+    fs = require('fs'),
+    util = require('util'),
+    path = require('path')
 
 const
     BaseService = require('./base'),
@@ -59,6 +62,8 @@ const
         FIND_SANDBOX_OTP_CORE_QUERY + " ORDER BY otp.createdAt DESC LIMIT $limit OFFSET $offset;",
     COUNT_SANDBOX_OTP_QUERY = `SELECT COUNT(*) as count ${FIND_SANDBOX_OTP_CORE_QUERY};`
 
+const moveFile = util.promisify(fs.rename)
+
 class AppService extends BaseService {
     constructor(services, args) {
         super('App', services, args)
@@ -68,6 +73,7 @@ class AppService extends BaseService {
         this.generateClientSecret = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~", 64)
         this.generateDevUserExtId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 24)
         this.generateWebLoginSessionId = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 64)
+        this.generateLogoFileName = nanoId.customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 16)
 
         // Init validation schemas
         const webConfig = Joi.object().keys({
@@ -400,6 +406,55 @@ class AppService extends BaseService {
 
         // Get dev user
         return OrgDevUser.findOne({where: {hashId: hashId}})
+    }
+
+    createFileName(file) {
+        // Determine extensions
+        let ext
+        switch (file.mimetype) {
+            case 'image/png': {
+                ext = '.png'
+                break
+            }
+            case 'image/jpeg': {
+                ext = '.jpg'
+                break
+            }
+        }
+
+        return this.generateLogoFileName() + ext
+    }
+
+    async uploadLogo(extId, file) {
+        // Get models
+        const {App} = this.models
+
+        // Get app
+        const app = await App.findOne({where: {extId}})
+        if (!app) {
+            throw new APIError('ERR_17')
+        }
+
+        // Get destination
+        const fileName = this.createFileName(file)
+        const filePath = path.join(this.config['ASSETS_DIR'], '/images/app-thumbnails/', fileName)
+
+        // Move file
+        await moveFile(file.path, filePath)
+
+        // Update app logo file
+        const count = await App.update({
+            logoFile: fileName
+        }, {
+            where: {id: app.id}
+        })
+        this.logger.debug(`updated app logoFile count = ${count}`)
+
+        // Compose response
+        return {
+            logoFile: fileName,
+            logoUrls: this.resolveLogoUrl(fileName)
+        }
     }
 
     async getAppDetail(extId) {

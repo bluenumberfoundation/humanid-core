@@ -3,7 +3,9 @@
 const BaseController = require('./base'),
     express = require('express'),
     APIError = require('../server/api_error'),
-    Constants = require('../constants')
+    Constants = require('../constants'),
+    multer = require('multer'),
+    path = require('path')
 
 class ConsoleController extends BaseController {
     constructor(args) {
@@ -11,6 +13,20 @@ class ConsoleController extends BaseController {
 
         // Create child logger
         this.logger = args.logger.child({scope: 'Core.ConsoleAPI'})
+
+        // Init uploader to temporary directory
+        this.tempDir = path.join(this.config.WORK_DIR, '/storage/temp')
+        this.upload = multer({
+            dest: this.tempDir,
+            fileFilter: function (req, file, cb) {
+                // TODO: read by detecting mime types and content types header
+                const ext = path.extname(file.originalname);
+                if (!['.png', '.jpg', '.jpeg'].includes(ext)) {
+                    return cb(new APIError('ERR_30'))
+                }
+                cb(null, true)
+            }
+        }).single('logo')
 
         // Route
         this.route()
@@ -26,6 +42,7 @@ class ConsoleController extends BaseController {
         this.router.get('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleListAppCredential)
         this.router.put('/apps/:appExtId/configurations', this.handleConsoleAuth, this.handleUpdateAppConfig)
         this.router.get('/apps/:appExtId', this.handleConsoleAuth, this.handleGetAppDetail)
+        this.router.put('/apps/:appExtId/logo', [this.handleConsoleAuth], this.handlePutUploadAppLogo)
         this.router.delete('/apps/:appExtId/credentials/:clientId', this.handleConsoleAuth, this.handleDeleteAppCredential)
         this.router.put('/apps/:appExtId/credentials/:clientId/status', this.handleConsoleAuth, this.handleToggleAppCredentialStatus)
         this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
@@ -33,6 +50,47 @@ class ConsoleController extends BaseController {
         this.router.delete('/sandbox/dev-users/:extId', this.handleConsoleAuth, this.handleDeleteDevUser)
         this.router.get('/sandbox/otps', this.handleConsoleAuth, this.handleListSandboxOTPs)
     }
+
+    uploadAsync = (req, res) => {
+        return new Promise((resolve, reject) => {
+            this.upload(req, res, err => {
+                if (err) {
+                    if (err instanceof multer.MulterError) {
+                        switch (err.code) {
+                            case 'LIMIT_FILE_SIZE': {
+                                err = new APIError('ERR_31')
+                                break
+                            }
+                        }
+                    }
+                    return reject(err)
+                }
+
+                return resolve()
+            })
+        })
+    }
+
+    handlePutUploadAppLogo = this.handleAsync(async (req, res) => {
+        // Handle form data
+        await this.uploadAsync(req, res)
+
+        // Check if file uploaded
+        if (!req.file) {
+            this.logger.debug('logo file is required')
+            throw new APIError(Constants.RESPONSE_ERROR_BAD_REQUEST)
+        }
+
+        // Get app id params
+        const extId = req.params['appExtId']
+
+        // Store logo file
+        const result = await this.services.App.uploadLogo(extId, req.file)
+
+        this.sendResponse(res, {
+            data: result
+        })
+    })
 
     handleGetAppDetail = this.handleRESTAsync(async req => {
         const extId = req.params['appExtId']
