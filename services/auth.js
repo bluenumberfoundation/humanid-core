@@ -89,7 +89,7 @@ class AuthService extends BaseService {
         exchangeToken = this.cleanExchangeToken(exchangeToken)
 
         // Get references
-        const {UserExchangeSession, AppUser} = this.models
+        const {UserExchangeSession, AppUser, User} = this.models
         const {dateUtil} = this.components
 
         // extract exchange id and encrypted payload
@@ -99,7 +99,15 @@ class AuthService extends BaseService {
         // Get exchange session by external id
         const session = await UserExchangeSession.findOne({
             where: {extId: exchangeId},
-            include: [{model: AppUser, as: 'appUser'}],
+            include: [
+                {
+                    model: AppUser,
+                    as: 'appUser',
+                    include: {
+                        model: User,
+                        as: 'user'
+                    }
+                }],
         })
 
         // Validate session existence
@@ -147,8 +155,12 @@ class AuthService extends BaseService {
         // Clear exchange token
         await this.clearExchangeToken(session.id, new Date())
 
+        // Compose response
+        const user = appUser['user']
+
         return {
-            appUserId: appUser.extId
+            appUserId: appUser.extId,
+            countryCode: user.countryCode
         }
     }
 
