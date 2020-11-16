@@ -72,7 +72,9 @@
  *
  * @apiUse SuccessResponse
  * @apiSuccess {Object} data Response data
+ *
  * @apiSuccess {String} data.appUserId User identifier for Partner app
+ * @apiSuccess {String} data.countryCode User country origin in ISO 3116-1 alpha-2 format
  * @apiSuccessExample {json} SuccessResponse:
  *   {
  *     "success": true,
@@ -80,6 +82,7 @@
  *     "message": "Success",
  *     "data": {
  *       "appUserId": "<APP_USER_ID>"
+ *       "countryCode": "US"
  *     }
  *   }
  *
