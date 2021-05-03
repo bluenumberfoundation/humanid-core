@@ -20,7 +20,8 @@ const
     Constants = require('./constants'),
     express = require('express'),
     bodyParser = require('body-parser'),
-    path = require('path')
+    path = require('path'),
+    {getElapsedTime} = require('./components/date_util')
 
 const
     ConsoleController = require('./controllers/console'),
@@ -57,6 +58,9 @@ class Server {
 
         // Init router
         this.initRouter()
+
+        // Set start time
+        this.startedAt = new Date();
     }
 
     initRouter() {
@@ -99,6 +103,7 @@ class Server {
         this.app.use(`${basePath}/mobile`, new MobileController(routerParams).router)
         this.app.use(`${basePath}/server`, new ServerController(routerParams).router)
         this.app.use(`${basePath}/web-login`, new WebLoginController(routerParams).router)
+        this.app.get("/health", this.handleShowHealth)
         this.app.use(`${basePath}/web`, new WebController(models, common, nexmo).router)
         this.app.use(`${basePath}/public`, express.static('public'))
         this.app.use(`${basePath}/vendor`, express.static('doc/vendor'))
@@ -229,6 +234,14 @@ class Server {
                 this.sendErrorResponse(res, err)
             }
         }
+    }
+
+    handleShowHealth = (req, res) => {
+        // Get uptime
+        const uptime = getElapsedTime(this.startedAt);
+        this.sendResponse(res, {
+            data: {uptime}
+        })
     }
 }
 
