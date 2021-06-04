@@ -81,7 +81,8 @@ class AppService extends BaseService {
                 success: Joi.string().uri(),
                 failed: Joi.string().uri()
             }),
-            priorityCountry: Joi.array().items(Joi.string().length(2)).optional()
+            priorityCountry: Joi.array().items(Joi.string().length(2)).optional(),
+            privacyPolicyUrl: Joi.string().uri().optional(),
         })
 
         this.schemas = {
