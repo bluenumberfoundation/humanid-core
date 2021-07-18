@@ -242,6 +242,7 @@ class Server {
         this.sendResponse(res, {
             data: {uptime}
         })
+        return true;
     }
 }
 
