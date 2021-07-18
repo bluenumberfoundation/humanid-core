@@ -895,6 +895,23 @@ class AppService extends BaseService {
 
         return app
     }
+
+    async updateAppCredentialName(clientId, name) {
+        // Retrieve app credential
+        const ac = await this.models.AppCredential.findOne({
+            where: {clientId},
+        })
+
+        // If credential not found, return error
+        if (!ac) {
+            throw new APIError("ERR_32")
+        }
+
+        // Update name
+        ac.name = name;
+        ac.updatedAt = new Date();
+        await ac.save();
+    }
 }
 
 module.exports = AppService

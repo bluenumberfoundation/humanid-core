@@ -42,7 +42,8 @@ class ConsoleController extends BaseController {
         this.router.get('/apps/:appExtId/credentials', this.handleConsoleAuth, this.handleListAppCredential)
         this.router.put('/apps/:appExtId/configurations', this.handleConsoleAuth, this.handleUpdateAppConfig)
         this.router.get('/apps/:appExtId', this.handleConsoleAuth, this.handleGetAppDetail)
-        this.router.put('/apps/:appExtId/logo', [this.handleConsoleAuth], this.handlePutUploadAppLogo)
+        this.router.put('/apps/:appExtId/logo', this.handleConsoleAuth, this.handlePutUploadAppLogo)
+        this.router.patch('/apps/credentials/:clientId/name', this.handleConsoleAuth, this.handlePatchAppCredentialName)
         this.router.delete('/apps/:appExtId/credentials/:clientId', this.handleConsoleAuth, this.handleDeleteAppCredential)
         this.router.put('/apps/:appExtId/credentials/:clientId/status', this.handleConsoleAuth, this.handleToggleAppCredentialStatus)
         this.router.post('/sandbox/dev-users', this.handleConsoleAuth, this.handleRegisterDevUser)
@@ -99,6 +100,22 @@ class ConsoleController extends BaseController {
 
         return {
             data: app
+        }
+    })
+
+    handlePatchAppCredentialName = this.handleRESTAsync(async req => {
+        const clientId = req.params['clientId'];
+        const payload = req.body;
+
+        // Validate body
+        if (!payload || !payload.name) {
+            throw new APIError(Constants.RESPONSE_ERROR_BAD_REQUEST)
+        }
+
+        await this.services.App.updateAppCredentialName(clientId, payload.name);
+
+        return {
+            data: null,
         }
     })
 

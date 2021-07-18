@@ -153,5 +153,10 @@
     "success": false,
     "status": 400,
     "message": "App logo file size must be 1 MB max"
+  },
+  "ERR_32": {
+    "success": false,
+    "status": 400,
+    "message": "App Credential not found"
   }
 }
