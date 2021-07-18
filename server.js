@@ -27,7 +27,6 @@ const
     ConsoleController = require('./controllers/console'),
     MobileController = require('./controllers/mobile'),
     ServerController = require('./controllers/server'),
-    WebController = require('./controllers/web'),
     WebLoginController = require('./controllers/web-login')
 
 const
@@ -82,10 +81,6 @@ class Server {
         // Middlewares
         routerParams.middlewares = new Middlewares(routerParams)
 
-        // Get params
-        const models = this.models
-        const {common, nexmo} = this.components
-
         // Get base url
         const basePath = this.config.BASE_PATH
 
@@ -97,14 +92,11 @@ class Server {
         this.app.use(bodyParser.urlencoded({extended: true}))
 
         // Configure routing
-        this.app.use(`${basePath}/lib`, express.static('client/dist'))
-        this.app.use(`${basePath}/examples`, express.static('examples'))
         this.app.use(`${basePath}/console`, new ConsoleController(routerParams).router)
         this.app.use(`${basePath}/mobile`, new MobileController(routerParams).router)
         this.app.use(`${basePath}/server`, new ServerController(routerParams).router)
         this.app.use(`${basePath}/web-login`, new WebLoginController(routerParams).router)
         this.app.get(`${basePath}/health`, this.handleShowHealth)
-        this.app.use(`${basePath}/web`, new WebController(models, common, nexmo).router)
         this.app.use(`${basePath}/public`, express.static('public'))
         this.app.use(`${basePath}/vendor`, express.static('doc/vendor'))
         this.app.use(`${basePath}/`, express.static('doc'))
